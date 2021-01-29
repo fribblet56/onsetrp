@@ -62,6 +62,7 @@ function getWeaponID(modelid)
 end
 
 AddRemoteEvent("EquipInventory", function(player, originInventory, itemName, amount, inVehicle, vehiclSpeed)
+
     if (amount <= 0) then
         return false
     end
@@ -110,6 +111,7 @@ AddRemoteEvent("EquipInventory", function(player, originInventory, itemName, amo
             end
             CallRemoteEvent(player, "MakeErrorNotification", _("not_enough_slots"))
         else
+
             if string.find(itemName, 'mask_') then
                 local objectId
  
@@ -150,6 +152,30 @@ AddRemoteEvent("EquipInventory", function(player, originInventory, itemName, amo
                         PlayerData[player][itemName] = CreateObject(objectId, x, y, z)
                         SetObjectAttached(PlayerData[player][itemName], ATTACH_PLAYER, player, objX, objY, objZ, 0.0, 90.0, -90.0, "head")
                     end)
+                end
+            else
+                if GetPlayerBag(player) == 1 then
+                    if PlayerData[player].backpack == nil then -- Pour vérifier s'il n'a pas déjà un sac
+                        UpdateUIInventory(player, originInventory, itemName, PlayerData[originInventory].inventory[itemName], true)
+                        SetPlayerPropertyValue(player, "WearingItem", itemName, true)
+                        local x, y, z = GetPlayerLocation(player)
+                        PlayerData[player].backpack = CreateObject(820, x, y, z)
+                        SetObjectAttached(PlayerData[player].backpack, ATTACH_PLAYER, player, -30.0, -9.0, 0.0, -90.0, 0.0, 0.0, "spine_03")
+                        BackpackPutOnAnim(player)
+
+                    elseif PlayerData[player].backpack ~= nil then
+                        if GetPlayerUsedSlots(player) <= 50 then
+                            UpdateUIInventory(player, originInventory, itemName, PlayerData[originInventory].inventory[itemName], false)
+                            SetPlayerPropertyValue(player, "WearingItem", itemName, false)
+                            BackpackPutOnAnim(player)
+                            Delay(2500, function()
+                                DestroyObject(PlayerData[player].backpack)
+                                PlayerData[player].backpack = nil
+                            end)
+                        else
+                            CallRemoteEvent(player, "MakeErrorNotification", "Vous n'avez pas assez de place sur vous pour retirer votre sac à dos.")
+                        end
+                    end
                 end
             end
             -- No weapons items
@@ -206,6 +232,9 @@ AddRemoteEvent("UseInventory", function(player, originInventory, itemName, amoun
         else
             if itemName == "donut" or itemName == "apple" or itemName == "peach" or itemName == "water_bottle" or itemName == "fish" then
                 UseItem(player, originInventory, item, amount)
+            end
+            if itemName == "money_printer" then
+                CallRemoteEvent(player, "printer:Setup")
             end
             if itemName == "repair_kit" then
                 if GetPlayerVehicle(player) ~= 0 then
@@ -268,57 +297,62 @@ AddRemoteEvent("UseInventory", function(player, originInventory, itemName, amoun
                     end
                 end
             end
-            -- if itemName == "lockpick" then -- TEMP
-            --     local nearestCar = GetNearestCar(player)
-            --     local nearestHouseDoor = GetNearestHouseDoor(player)
-            --     if nearestCar ~= 0 then
-            --         if VehicleData[nearestCar] ~= nil then
-            --             if GetVehiclePropertyValue(nearestCar, "locked") then
-            --                 CallRemoteEvent(player, "LockControlMove", true)
-            --                 SetPlayerAnimation(player, "LOCKDOOR")
-            --                 Delay(3000, function()
-            --                     SetPlayerAnimation(player, "LOCKDOOR")
-            --                 end)
-            --                 Delay(6000, function()
-            --                     SetPlayerAnimation(player, "LOCKDOOR")
-            --                 end)
-            --                 Delay(10000, function()
-            --                     SetVehiclePropertyValue(nearestCar, "locked", false, true)
-            --                     CallRemoteEvent(player, "MakeSuccessNotification", _("car_unlocked"))
-            --                     RemoveInventory(originInventory, itemName, amount)
-            --                     CallRemoteEvent(player, "LockControlMove", false)
-            --                     SetPlayerAnimation(player, "STOP")
-            --                 end)
-            --             else
-            --                 CallRemoteEvent(player, "MakeErrorNotification", _("vehicle_already_unlocked"))
-            --             end
-            --         end
-            --     end
-            --     if nearestHouseDoor ~= 0 then
-            --         nearestHouse = getHouseDoor(nearestHouseDoor)
-            --         if nearestHouse ~= 0 then
-            --             if houses[nearestHouse].lock then
-            --                 CallRemoteEvent(player, "LockControlMove", true)
-            --                 SetPlayerAnimation(player, "LOCKDOOR")
-            --                 Delay(3000, function()
-            --                     SetPlayerAnimation(player, "LOCKDOOR")
-            --                 end)
-            --                 Delay(6000, function()
-            --                     SetPlayerAnimation(player, "LOCKDOOR")
-            --                 end)
-            --                 Delay(10000, function()
-            --                     houses[nearestHouse].lock = false
-            --                     CallRemoteEvent(player, "MakeSuccessNotification", _("unlock_house"))
-            --                     RemoveInventory(originInventory, itemName, amount)
-            --                     CallRemoteEvent(player, "LockControlMove", false)
-            --                     SetPlayerAnimation(player, "STOP")
-            --                 end)
-            --             else
-            --                 CallRemoteEvent(player, "MakeErrorNotification", _("house_already_unlock"))
-            --             end
-            --         end
-            --     end
-            -- end
+            if itemName == "lockpick" then -- TEMP
+                local nearestCar = GetNearestCar(player)
+                local nearestHouseDoor = GetNearestHouseDoor(player)
+                if nearestCar ~= 0 then
+                    if VehicleData[nearestCar] ~= nil then
+                        local random = math.random(1,7)
+                        if random == 2 then
+                            if GetVehiclePropertyValue(nearestCar, "locked") then
+                                RemoveInventory(originInventory, itemName, amount)
+                                CallRemoteEvent(player, "LockControlMove", true)
+                                SetPlayerAnimation(player, "LOCKDOOR")
+                                Delay(3000, function()
+                                    SetPlayerAnimation(player, "LOCKDOOR")
+                                end)
+                                Delay(6000, function()
+                                    SetPlayerAnimation(player, "LOCKDOOR")
+                                end)
+                                Delay(10000, function()
+                                    SetVehiclePropertyValue(nearestCar, "locked", false, true)
+                                    CallRemoteEvent(player, "MakeSuccessNotification", _("car_unlocked"))
+                                    CallRemoteEvent(player, "LockControlMove", false)
+                                    SetPlayerAnimation(player, "STOP")
+                                end)
+                            else
+                                CallRemoteEvent(player, "MakeErrorNotification", _("vehicle_already_unlocked"))
+                            end
+                        else
+                            CallRemoteEvent(player, "MakeErrorNotification", "Votre lockpick à casser.")
+                        end
+                    end
+                end
+                if nearestHouseDoor ~= 0 then
+                    nearestHouse = getHouseDoor(nearestHouseDoor)
+                    if nearestHouse ~= 0 then
+                        if houses[nearestHouse].lock then
+                            RemoveInventory(originInventory, itemName, amount)
+                            CallRemoteEvent(player, "LockControlMove", true)
+                            SetPlayerAnimation(player, "LOCKDOOR")
+                            Delay(3000, function()
+                                SetPlayerAnimation(player, "LOCKDOOR")
+                            end)
+                            Delay(6000, function()
+                                SetPlayerAnimation(player, "LOCKDOOR")
+                            end)
+                            Delay(10000, function()
+                                houses[nearestHouse].lock = false
+                                CallRemoteEvent(player, "MakeSuccessNotification", _("unlock_house"))
+                                CallRemoteEvent(player, "LockControlMove", false)
+                                SetPlayerAnimation(player, "STOP")
+                            end)
+                            else
+                            CallRemoteEvent(player, "MakeErrorNotification", _("house_already_unlock"))
+                        end
+                    end
+                end
+            end
             CallEvent("job:usespecialitem", player, itemName)-- REDIRECT TO JOBS SCRIPT TO USE ITEM
         end
     end
@@ -487,16 +521,10 @@ function AddInventory(inventoryId, item, amount, player)
     
     local slotsAvailables = tonumber(GetPlayerMaxSlots(inventoryId)) - tonumber(GetPlayerUsedSlots(inventoryId))
     if item == "cash" or slotsAvailables >= (amount * ItemsWeight[item]) then
-        if item == "item_backpack" and GetPlayerBag(inventoryId) == 1 then -- On ne peux pas acheter plusieurs sacs
-            return false
-        end
         if PlayerData[inventoryId].inventory[item] == nil then
             PlayerData[inventoryId].inventory[item] = amount
         else
             PlayerData[inventoryId].inventory[item] = PlayerData[inventoryId].inventory[item] + amount
-        end
-        if item == "item_backpack" then -- Affichage du sac sur le perso
-            DisplayPlayerBackpack(player, 1)
         end
         UpdateUIInventory(player, inventoryId, item, PlayerData[inventoryId].inventory[item])
         UpdateUIInventory(inventoryId, inventoryId, item, PlayerData[inventoryId].inventory[item])
@@ -541,7 +569,10 @@ function RemoveInventory(inventoryId, item, amount, drop, player)
             UpdateUIInventory(inventoryId, inventoryId, item, PlayerData[inventoryId].inventory[item])
         end
         if item == "item_backpack" then
-            DisplayPlayerBackpack(player, 1)
+            if GetPlayerUsedSlots(player) <= 50 then
+                DisplayPlayerBackpack(player, 1)
+                
+            end
         end
         if drop == 1 then
             local bool = nil
@@ -560,6 +591,7 @@ AddRemoteEvent("ObjectDrop", function(player, bool, item, amount)
     weapon = getWeaponID(item)
     weapon = tonumber(weapon)
     local slot = GetPlayerEquippedWeaponSlot(player)
+
     if weapon ~= 0 then
         if GetPlayerWeapon(player, slot) ~= weapon then
             for i = 1,3 do
@@ -602,6 +634,30 @@ AddRemoteEvent("ObjectDrop", function(player, bool, item, amount)
             end
         elseif item == "water_bottle" then
             ObjectID = 1631
+        elseif item == "safety_cone" then
+            ObjectID = 486
+        elseif item == "unicorn" then
+            ObjectID = 407
+        elseif item == "jerican_gross" then
+            ObjectID = 500
+        elseif item == "butane_cylinder" then
+            ObjectID = 1121
+        elseif item == "cannabis_oil" then
+            ObjectID = 1624
+        elseif item == "cannabis_no_manicure" then
+            ObjectID = 65
+        elseif item == "printer_paper" then
+            ObjectID = 547
+        elseif item == "sulfurique_acide" then
+            ObjectID = 564
+        elseif item == "gas_mask" then
+            ObjectID = 838
+        elseif item == "money_printer" then
+            ObjectID = 535
+        elseif item == "empty_printer_battery" or item == "printer_battery" then
+            ObjectID = 1104
+        elseif item == "survival_ration" then
+            ObjectID = 796
         elseif item == "apple" then
             ObjectID = 1616
         elseif item == "donut" then
@@ -668,7 +724,16 @@ AddRemoteEvent("ObjectDrop", function(player, bool, item, amount)
                 DestroyObject(PlayerData[player][item])
                 PlayerData[player][item] = nil
             end
-        end
+        elseif item == "item_backpack" then
+            BackpackDrop(player)
+            if PlayerData[player].backpack ~= nil then
+                UpdateUIInventory(player, player, item, PlayerData[player].inventory[item], false)
+                SetPlayerPropertyValue(player, "WearingItem", item, false)
+                DestroyObject(PlayerData[player].backpack)
+                PlayerData[player].backpack = nil
+            end
+        end    
+
         SetPlayerAnimation(player, "CHECK_EQUIPMENT")
         objetdrop = CreateObject(ObjectID, x, y, z - 100, rx, ry, rz)
         SetObjectScale(objetdrop, sx, sy, sz)
@@ -690,6 +755,44 @@ AddRemoteEvent("ObjectDrop", function(player, bool, item, amount)
     end, objetdrop, text)
 end)
 
+function BackpackDrop( player )
+    if GetPlayerUsedSlots(player) >= 50 then
+        for k,v in pairs(PlayerData[player].inventory) do
+            if GetPlayerUsedSlots(player) >= 50 then
+                AddPlayerChat(player, GetPlayerUsedSlots(player))
+
+                local x,y,z = GetPlayerLocation(player)
+
+                local newx = math.random(math.floor(x)-100,math.floor(x)+100)
+                local newy = math.random(math.floor(y)-100,math.floor(y)+100)
+
+                CreateObj( newx, newy, z, GetNumberOfItem(player, k), k, _(k))
+                RemoveInventory(player, k, GetNumberOfItem(player, k))
+
+            else
+                break
+            end
+        end
+    end
+end
+
+function CreateObj( x, y, z, amount, item, text)
+    object = CreateObject(620, x, y, z - 100)
+    textObj = CreateText3D(text.." x"..amount, 15, x, y, z, 0,0,0)
+    SetObjectPropertyValue(object, "isitem", true, true)
+    SetObjectPropertyValue(object, "collision", false, true)
+    SetObjectPropertyValue(object, "item", item, true)
+    SetObjectPropertyValue(object, "amount", amount, true)
+    SetObjectPropertyValue(object, "textid", textObj)
+
+    Delay(300000, function(object, textObj)
+        if object ~= nil then
+            DestroyObject(object)
+            DestroyText3D(textObj)
+        end                           
+    end, object, textObj)
+end
+
 function SetInventory(player, item, amount)
     if (amount <= 0) then
         return false
@@ -708,7 +811,7 @@ function GetPlayerCash(player)
 end
 
 function GetNumberOfItem(player, item)
-    return tonumber(PlayerData[player].inventory[item]) or 0
+    return PlayerData[player].inventory[item] or 0
 end
 
 function SetPlayerCash(player, amount)
@@ -734,7 +837,10 @@ end
 
 function GetPlayerMaxSlots(player)
     if PlayerData[player].inventory['item_backpack'] and math.tointeger(PlayerData[player].inventory['item_backpack']) > 0 then
-        return math.floor(inventory_base_max_slots + backpack_slot_to_add)
+        if PlayerData[player].backpack ~= nil then
+            return math.floor(inventory_base_max_slots + backpack_slot_to_add)
+        end
+        return inventory_base_max_slots
     else
         return inventory_base_max_slots
     end
@@ -763,7 +869,10 @@ function DisplayPlayerBackpack(player, anim)
         if PlayerData[player].backpack ~= nil then
             if anim == 1 then BackpackPutOnAnim(player, 2500) end -- Petite animation RP
             Delay(2500, function()
-                DestroyObject(PlayerData[player].backpack)
+                if PlayerData[player].backpack ~= nil then
+                    DestroyObject(PlayerData[player].backpack)
+                    PlayerData[player].backpack = nil
+                end
             end)
         end
     end
@@ -788,3 +897,4 @@ AddFunctionExport("GetPlayerBag", GetPlayerBag)
 AddFunctionExport("GetPlayerMaxSlots", GetPlayerMaxSlots)
 AddFunctionExport("GetPlayerUsedSlots", GetPlayerUsedSlots)
 AddFunctionExport("DisplayPlayerBackpack", DisplayPlayerBackpack)
+AddFunctionExport("GetNumberOfItem", GetNumberOfItem)

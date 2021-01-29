@@ -27,27 +27,27 @@ local NB_HANDCUFFS = 3
 --- PLAN B EN CAS DE FPS EN DELIRE AVEC LE MOD DE SALSI
 
 local VEHICLE_SPAWN_LOCATION = {
-    {x = 189301, y = 206802, z = 1320, h = 220},
+    {x = 174103, y = 190806, z = 1307, h = -90},
     {x = -173007, y = -65864, z = 1130, h = -90},
 }
 
 local POLICE_SERVICE_NPC = {
-    {x = 191680, y = 208448, z = 2427, h = 0},
+    {x = 170904, y = 193990, z = 1397, h = 118},
     {x = -173771, y = -64070, z = 1209, h = 90},
 }
 
 local POLICE_VEHICLE_NPC = {
-    {x = 189593, y = 206346, z = 1323, h = 180},
+    {x = 173538, y = 190454, z = 1321, h = 0},
     {x = -172714, y = -65156, z = 1149, h = -90},
 }
 
 local POLICE_GARAGE = {
-    {x = 197007, y = 205898, z = 1321},
+    {x = 172000, y = 190775, z = 1324},
     {x = -172667, y = -65824, z = 1130},
 }
 
 local POLICE_EQUIPMENT_NPC = {
-    {x = 192373, y = 208150, z = 2420, h = 180},
+    {x = 171254, y = 193810, z = 1325, h = 0},
     {x = -173980, y = -63613, z = 1209, h = -90},
 }
 
@@ -58,8 +58,7 @@ local policeEquipmentNpcIds = {}
 
 AddEvent("OnPackageStart", function()
     for k, v in pairs(POLICE_SERVICE_NPC) do
-        v.npcObject = CreateNPC(v.x, v.y, v.z, v.h)
-        SetNPCAnimation(v.npcObject, "WALLLEAN04", true)        
+        v.npcObject = CreateNPC(v.x, v.y, v.z, v.h)     
         table.insert(policeNpcIds, v.npcObject)
     end
     
@@ -98,7 +97,7 @@ AddRemoteEvent("police:startstopservice", PoliceStartStopService)
 
 function PoliceStartService(player)-- To start the police service
     -- #1 Check for the police whitelist of the player
-    if PlayerData[player].police ~= 1 then
+    if PlayerData[player].police == 0 then
         CallRemoteEvent(player, "MakeErrorNotification", _("not_whitelisted"))
         return
     end
@@ -122,13 +121,36 @@ function PoliceStartService(player)-- To start the police service
     
     -- #4 Set the player job to police, update the cloths, give equipment
     PlayerData[player].job = "police"
-    CallRemoteEvent(player, "police:client:isonduty", true)    
+    CallRemoteEvent(player, "police:client:isonduty", true)
+
+    if PlayerData[player].police == 1 then
+        SetPlayerName(player, "[CRE-"..PlayerData[player].id.."]")
+
+        local x, y, z = GetPlayerLocation(player)
+        PlayerData[player].hat = CreateObject(468, x, y, z)
+        SetObjectScale(PlayerData[player].hat, 1.0, 1.0, 1.0)
+        SetObjectAttached(PlayerData[player].hat, ATTACH_PLAYER, player, 14.0, 2.0, 0.0, 180.0, 90.0, -90.0, "head")
+    elseif PlayerData[player].police == 2 then
+        SetPlayerName(player, "[CPT-"..PlayerData[player].id.."]")
+
+        local x, y, z = GetPlayerLocation(player)
+        PlayerData[player].hat = CreateObject(468, x, y, z)
+        SetObjectScale(PlayerData[player].hat, 1.0, 1.0, 1.0)
+        SetObjectAttached(PlayerData[player].hat, ATTACH_PLAYER, player, 14.0, 2.0, 0.0, 180.0, 90.0, -90.0, "head")
+    elseif PlayerData[player].police == 3 then
+        SetPlayerName(player, "[LTN-"..PlayerData[player].id.."]")
+    elseif PlayerData[player].police == 4 then
+        SetPlayerName(player, "[BGR-"..PlayerData[player].id.."]")
+    elseif PlayerData[player].police == 5 then
+        SetPlayerName(player, "[CAD-"..PlayerData[player].id.."]")
+    end
+
     -- CLOTHINGS
     GivePoliceEquipmentToPlayer(player)
     SetPlayerArmor(player, 100)-- Set the armor of player
     UpdateClothes(player)
     
-    CallRemoteEvent(player, "MakeNotification", _("join_police"), "linear-gradient(to right, #00b09b, #96c93d)")
+    CallRemoteEvent(player, "MakeNotification", _("join_police"), "#5DADE2")
     
     return true
 end
@@ -141,7 +163,16 @@ function PoliceEndService(player)-- To end the police service
         DestroyVehicleData(PlayerData[player].job_vehicle)
         PlayerData[player].job_vehicle = nil
     end
+
+    if PlayerData[player].police <= 2 then
+        DestroyObject(PlayerData[player].hat)
+        PlayerData[player].hat = nil
+
+        PlayerData[player].job = ""
+    end
+
     -- #2 Set player job
+    SetPlayerName(player, PlayerData[player].id)
     PlayerData[player].job = ""
     CallRemoteEvent(player, "police:client:isonduty", false)  
     -- #3 Reset player armor
@@ -149,13 +180,13 @@ function PoliceEndService(player)-- To end the police service
     -- #4 Trigger update of cloths
     UpdateClothes(player)
     
-    CallRemoteEvent(player, "MakeNotification", _("quit_police"), "linear-gradient(to right, #00b09b, #96c93d)")
+    CallRemoteEvent(player, "MakeNotification", _("quit_police"), "#5DADE2")
     
     return true
 end
 
 function GivePoliceEquipmentToPlayer(player)-- To give police equipment to policemen
-    if PlayerData[player].job == "police" and PlayerData[player].police == 1 then -- Fail check
+    if PlayerData[player].job == "police" and PlayerData[player].police >= 1 then -- Fail check
         if GetNumberOfItem(player, "weapon_4") < 1 then -- If the player doesnt have the gun we give it to him
             SetInventory(player, "weapon_4", 1)
             SetPlayerWeapon(player, 4, 70, false, 2, true)
@@ -172,6 +203,29 @@ function GivePoliceEquipmentToPlayer(player)-- To give police equipment to polic
 end
 AddRemoteEvent("police:checkmyequipment", GivePoliceEquipmentToPlayer)
 
+AddRemoteEvent("police:Open", function ( player, Door )
+    local Vehicle = GetNearestVehicle(player, 250)
+    local Door = GetNearestDoor(player, 250, Door)
+
+    AddPlayerChat(player,tostring(Door))
+    AddPlayerChat(player,tostring(Vehicle))
+
+    if Door ~= nil and Vehicle ~= nil then
+        CallRemoteEvent(player, "MakeErrorNotification", "Vous été près d'une porte et d'une voiture.")
+    elseif Door ~= nil and Vehicle == nil then
+        if IsDoorOpen(Door) then
+            SetDoorOpen(Door, false)
+        else
+            SetPlayerAnimation(player, "KICKDOOR")
+            SetDoorOpen(Door, true)
+        end
+    elseif Door == nil and Vehicle ~= nil then
+        SetPlayerAnimation(player, "LOCKDOOR")
+        SetVehiclePropertyValue(Vehicle, "locked", false, true)
+        CallRemoteEvent(player, "MakeSuccessNotification", _("car_unlocked"))
+    end
+end)
+
 function RemovePoliceEquipmentFromPlayer(player)-- To remove police equipment from policemen
     if GetNumberOfItem(player, "weapon_4") > 0 then -- If the player have the gun we remove it
         RemoveInventory(player, "weapon_4", 1)
@@ -187,18 +241,18 @@ function RemovePoliceEquipmentFromPlayer(player)-- To remove police equipment fr
 end
 
 AddEvent("job:onspawn", function(player)
-    if PlayerData[player].job == "police" and PlayerData[player].police == 1 then -- Anti glitch
+    if PlayerData[player].job == "police" and PlayerData[player].police >= 1 then -- Anti glitch
         CallRemoteEvent(player, "police:client:isonduty", true)  
     end
     
     if PlayerData[player].is_cuffed == 1 then
-        SetPlayerCuffed(player, true)
+        PoliceSetPlayerCuffed(player, true)
     end
 end)
 
 AddEvent("police:refreshcuff", function(player)
     if PlayerData[player].is_cuffed == 1 then
-        SetPlayerCuffed(player, true)
+        PoliceSetPlayerCuffed(player, true)
     end
 end)
 
@@ -206,11 +260,11 @@ AddEvent("OnPlayerSpawn", function(player)-- On player death
     if PlayerData and PlayerData[player] then
         if PlayerData[player].health_state == "no_medic" then
             if PlayerData[player].is_cuffed == 1 then
-                SetPlayerCuffed(player, false)
+                PoliceSetPlayerCuffed(player, false)
             end
         else
             if PlayerData[player].is_cuffed == 1 then
-                SetPlayerCuffed(player, true)
+                PoliceSetPlayerCuffed(player, true)
             end
         end
         GivePoliceEquipmentToPlayer(player)
@@ -220,10 +274,12 @@ end)
 --------- POLICE VEHICLE
 function SpawnPoliceCar(player)
     -- #1 Check for the police whitelist of the player
-    if PlayerData[player].police ~= 1 then
+
+    if PlayerData[player].police > 4 then
         CallRemoteEvent(player, "MakeErrorNotification", _("not_whitelisted"))
         return
     end
+
     if PlayerData[player].job ~= "police" then
         CallRemoteEvent(player, "MakeErrorNotification", _("not_police"))
         return
@@ -256,12 +312,61 @@ function SpawnPoliceCar(player)
         SetVehicleRespawnParams(vehicle, false)
         SetVehiclePropertyValue(vehicle, "locked", true, true)
         VehicleData[vehicle].inventory = { repair_kit = 2, jerican = 2 }
-        CallRemoteEvent(player, "MakeNotification", _("spawn_vehicle_success", " patrol car"), "linear-gradient(to right, #00b09b, #96c93d)")
+        CallRemoteEvent(player, "MakeNotification", _("spawn_vehicle_success", " patrol car"), "#5DADE2")
     else
         CallRemoteEvent(player, "MakeErrorNotification", _("cannot_spawn_vehicle"))
     end
 end
 AddRemoteEvent("police:spawnvehicle", SpawnPoliceCar)
+
+
+function SpawnSpecialPoliceCar(player)
+    -- #1 Check for the police whitelist of the player
+
+    if PlayerData[player].police > 3 then
+        CallRemoteEvent(player, "MakeErrorNotification", _("not_whitelisted"))
+        return
+    end
+
+    if PlayerData[player].job ~= "police" then
+        CallRemoteEvent(player, "MakeErrorNotification", _("not_police"))
+        return
+    end
+    
+    -- #2 Check if the player has a job vehicle spawned then destroy it
+    if PlayerData[player].job_vehicle ~= nil and ALLOW_RESPAWN_VEHICLE then
+        DestroyVehicle(PlayerData[player].job_vehicle)
+        DestroyVehicleData(PlayerData[player].job_vehicle)
+        PlayerData[player].job_vehicle = nil
+    end
+    
+    -- #3 Try to spawn the vehicle
+    if PlayerData[player].job_vehicle == nil then
+        local spawnPoint = VEHICLE_SPAWN_LOCATION[PoliceGetClosestSpawnPoint(player)]
+        if spawnPoint == nil then return end
+        for k, v in pairs(GetStreamedVehiclesForPlayer(player)) do
+            local x, y, z = GetVehicleLocation(v)
+            if x == false then break end
+            local dist2 = GetDistance3D(spawnPoint.x, spawnPoint.y, spawnPoint.z, x, y, z)
+            if dist2 < 500.0 then
+                CallRemoteEvent(player, "MakeErrorNotification", _("cannot_spawn_vehicle"))
+                return
+            end
+        end
+        local vehicle = CreateVehicle(12, spawnPoint.x, spawnPoint.y, spawnPoint.z, spawnPoint.h)
+        SetVehicleLicensePlate(vehicle, "POL-"..PlayerData[player].accountid) 
+        PlayerData[player].job_vehicle = vehicle
+        CreateVehicleData(player, vehicle, 3)
+        SetVehicleRespawnParams(vehicle, false)
+        SetVehiclePropertyValue(vehicle, "locked", true, true)
+        VehicleData[vehicle].inventory = { repair_kit = 2, jerican = 2 }
+        SetVehicleColor(vehicle, "0x0400FF")
+        CallRemoteEvent(player, "MakeNotification", _("spawn_vehicle_success", " patrol car"), "#5DADE2")
+    else
+        CallRemoteEvent(player, "MakeErrorNotification", _("cannot_spawn_vehicle"))
+    end
+end
+AddRemoteEvent("police:spawnspecialpolicecar", SpawnSpecialPoliceCar)
 
 function DespawnPoliceCar(player)
     -- #2 Check if the player has a job vehicle spawned then destroy it
@@ -269,7 +374,7 @@ function DespawnPoliceCar(player)
         DestroyVehicle(PlayerData[player].job_vehicle)
         DestroyVehicleData(PlayerData[player].job_vehicle)
         PlayerData[player].job_vehicle = nil
-        CallRemoteEvent(player, "MakeNotification", _("vehicle_stored"), "linear-gradient(to right, #00b09b, #96c93d)")
+        CallRemoteEvent(player, "MakeNotification", _("vehicle_stored"), "#5DADE2")
         return
     end
 end
@@ -291,32 +396,110 @@ AddEvent("OnPlayerPickupHit", function(player, pickup)-- Store the vehicle in ga
         end
     end
 end)
+
+AddRemoteEvent("police:findPrinter", function ( player )
+    PlayerData[player].PrinterFindTimer = {}
+    PlayerData[player].PrinterFindTimer = CreateTimer(function(  )
+        -- body
+        local x,y,z = GetPlayerLocation(player)
+
+        if printerNbr ~= nil then
+            for k,v in pairs(allprinter) do
+            	if PlayerData[player].job == "police" then
+	                if v.active == 1 then
+	                    local x2,y2,z2 = GetObjectLocation(v.object)
+	                    local dist = GetDistance2D(x, y, x2, y2)
+	                    local facteur = dist / 1000
+	                    AddPlayerChat(player,dist)
+	                    if facteur > 200 then
+	                        CallRemoteEvent(player, "MakeNotification", "Printer très loin.", "#5DADE2")
+	                    elseif facteur > 30 and facteur < 120 then
+	                        CallRemoteEvent(player, "MakeNotification", "Printer loin.", "#5DADE2")
+	                    elseif facteur > 15 and facteur < 30 then
+	                        CallRemoteEvent(player, "MakeNotification", "Printer proche.", "#5DADE2")
+	                    elseif facteur < 15 then
+	                        CallRemoteEvent(player, "MakeNotification", "Printer très proche.", "#5DADE2")
+	                    end
+	                    break
+	                end
+	            end
+            end
+        else
+            CallRemoteEvent(player, "MakeErrorNotification", "Aucun printer détecter.")
+        end
+    end, 8000)
+
+end)
+
+AddEvent("OnPlayerQuite", function ( player )
+    if PlayerData[player].PrinterFindTimer ~= nil then
+        DestroyTimer(PlayerData[player].PrinterFindTimer)
+    end
+end)
+
+AddRemoteEvent("police:StopfindPrinter", function ( player )
+    DestroyTimer(PlayerData[player].PrinterFindTimer)
+    CallRemoteEvent(player, "MakeErrorNotification", "détecteur Off.")
+end)
 --------- POLICE VEHICLE END
 --------- INTERACTIONS
-function CuffPlayer(player)
-    if PlayerData[player].police ~= 1 then return end
-    if PlayerData[player].job ~= "police" then return end
+local function PoliceCuffPlayer(player)
     
     local target = GetNearestPlayer(player, 200)
+
+    if target == nil then 
+        CallRemoteEvent(player, "MakeErrorNotification", "Aucun Joueur a proximité.")
+    end
+
+
     if target ~= nil and PlayerData[target].is_cuffed == 0 then
         if GetNumberOfItem(player, "handcuffs") > 0 then
-            RemoveInventory(player, "handcuffs", 1)
-            SetPlayerCuffed(target, true)            
-            CallRemoteEvent(player, "MakeNotification", _("player_is_handcuffed"), "linear-gradient(to right, #00b09b, #96c93d)")
-            CallRemoteEvent(target, "MakeNotification", _("you_are_handcuffed"), "linear-gradient(to right, #00b09b, #96c93d)")
+
+            RemoveInventory(target, "handcuffs", 1)
+            SetPlayerWeapon(target, 1, 0, true, 1)
+            SetPlayerWeapon(target, 1, 0, false, 2)
+            SetPlayerWeapon(target, 1, 0, false, 3)
+            -- # Launch the cuffed animation
+            SetPlayerAnimation(target, "CUFF")
+            -- # Disable most of interactions
+            SetPlayerBusy(target)
+            -- # Set player as cuffed
+            PlayerData[target].is_cuffed = 1
+            -- # Set property value
+            SetPlayerPropertyValue(target, "cuffed", true, true)  
+
+            CallRemoteEvent(target, "MakeNotification", _("you_are_handcuffed"), "#E74C3C")
         else
             CallRemoteEvent(player, "MakeErrorNotification", _("no_handcuffs"))
         end
     elseif target ~= nil and PlayerData[target].is_cuffed == 1 then
-        SetPlayerCuffed(target, false)
+        SetPlayerAnimation(target, "STOP")
+        SetPlayerNotBusy(target)
+        PlayerData[target].is_cuffed = 0
+        SetPlayerPropertyValue(target, "cuffed", false, true)
         AddInventory(player, "handcuffs", 1)
-        CallRemoteEvent(player, "MakeNotification", _("player_is_uncuffed"), "linear-gradient(to right, #00b09b, #96c93d)")
-        CallRemoteEvent(target, "MakeNotification", _("you_are_uncuffed"), "linear-gradient(to right, #00b09b, #96c93d)")
+        CallRemoteEvent(player, "MakeNotification", _("player_is_uncuffed"), "#5DADE2")
+        CallRemoteEvent(target, "MakeSuccessNotification", _("you_are_uncuffed"))
     end
 end
-AddRemoteEvent("police:cuff", CuffPlayer)
+AddRemoteEvent("police:cuff", PoliceCuffPlayer)
 
-function SetPlayerCuffed(player, state)
+function PoliceGetPlayerInventory(player)
+    if PlayerData[player].police ~= 1 then return end
+    if PlayerData[player].job ~= "police" then return end
+    
+    local target = GetNearestPlayer(player, 200)
+    if target ~= nil and PlayerData[target].is_cuffed == 1 then
+
+        CallRemoteEvent(player, "OpenPersonalMenu", Items, PlayerData[player].inventory, PlayerData[player].accountid, player, nearInventories, GetPlayerMaxSlots(player), nil, nearInventoryItems)
+
+    elseif target ~= nil and PlayerData[target].is_cuffed == 0 then
+        
+    end
+end
+AddRemoteEvent("police:GetPlayerInventory", PoliceGetPlayerInventory)
+
+function PoliceSetPlayerCuffed(player, state)
     if state == true then
         -- # Empty the weapons shortcuts
         SetPlayerWeapon(player, 1, 0, true, 1)
@@ -338,13 +521,10 @@ function SetPlayerCuffed(player, state)
     end
 end
 
-function FinePlayer(player, amount, reason)
+function PoliceFinePlayer(player, amount, reason)
     if (tonumber(amount) <= 0) then
         return false
     end
-      
-    if PlayerData[player].police ~= 1 then return end
-    if PlayerData[player].job ~= "police" then return end
     
     local target = GetNearestPlayer(player, 200)
     if target ~= nil then
@@ -353,11 +533,9 @@ function FinePlayer(player, amount, reason)
         CallRemoteEvent(player, "MakeErrorNotification", _("police_no_player_in_range"))
     end
 end
-AddRemoteEvent("police:fine", FinePlayer)
+AddRemoteEvent("police:fine", PoliceFinePlayer)
 
 function AddFineInDb(player, target, amount, reason)
-    if PlayerData[player].police ~= 1 then return end
-    if PlayerData[player].job ~= "police" then return end
     PlayerData[target].bank_balance = PlayerData[target].bank_balance - amount -- Set the bank account
     local query = mariadb_prepare(sql, "INSERT INTO fines (`fine_date`,`agent_id`, `player_id`, `amount`, `reason`, `paid`) VALUES ('?', ?, ?, ?, '?', 1);",
         tostring(os.date('%Y-%m-%d %H:%M:%S')),
@@ -368,13 +546,11 @@ function AddFineInDb(player, target, amount, reason)
     -- Insert the fine in DB
     mariadb_async_query(sql, query)
     -- Notify
-    CallRemoteEvent(player, "MakeNotification", _("fine_given", amount), "linear-gradient(to right, #00b09b, #96c93d)")
-    CallRemoteEvent(target, "MakeNotification", _("fine_received", amount), "linear-gradient(to right, #00b09b, #96c93d)")
+    CallRemoteEvent(player, "MakeNotification", _("fine_given", amount), "#5DADE2")
+    CallRemoteEvent(target, "MakeNotification", _("fine_received", amount), "#5DADE2")
 end
 
 function PolicePutPlayerInCar(player)
-    if PlayerData[player].police ~= 1 then return end
-    if PlayerData[player].job ~= "police" then return end
     
     local target = GetNearestPlayer(player, 200)
     if target ~= nil then
@@ -391,10 +567,10 @@ function PoliceSetPlayerInCar(player, target)
     if GetDistance3D(x, y, z, x2, y2, z2) <= 400 then
         if GetVehiclePassenger(PlayerData[player].job_vehicle, 3) == 0 then -- First back seat
             SetPlayerInVehicle(target, PlayerData[player].job_vehicle, 3)
-            CallRemoteEvent(player, "MakeNotification", _("policecar_place_player_in_back"), "linear-gradient(to right, #00b09b, #96c93d)")
+            CallRemoteEvent(player, "MakeNotification", _("policecar_place_player_in_back"), "#5DADE2")
         elseif GetVehiclePassenger(PlayerData[player].job_vehicle, 4) == 0 then -- Second back seat
             SetPlayerInVehicle(target, PlayerData[player].job_vehicle, 4)
-            CallRemoteEvent(player, "MakeNotification", _("policecar_place_player_in_back"), "linear-gradient(to right, #00b09b, #96c93d)")
+            CallRemoteEvent(player, "MakeNotification", _("policecar_place_player_in_back"), "#5DADE2")
         else -- All seats are busy
             CallRemoteEvent(player, "MakeErrorNotification", _("policecar_no_more_seat"))
         end
@@ -404,8 +580,6 @@ function PoliceSetPlayerInCar(player, target)
 end
 
 function PoliceRemovePlayerInCar(player)
-    if PlayerData[player].police ~= 1 then return end
-    if PlayerData[player].job ~= "police" then return end
     if PlayerData[player].job_vehicle == nil then return end
     
     local x, y, z = GetVehicleLocation(PlayerData[player].job_vehicle)
@@ -424,28 +598,22 @@ end
 AddRemoteEvent("police:removeplayerincar", PoliceRemovePlayerInCar)
 
 function FriskPlayer(player)
-    if PlayerData[player].police ~= 1 then return end
-    if PlayerData[player].job ~= "police" then return end
     
     local target = GetNearestPlayer(player, 200)
     if target ~= nil then
-        LaunchFriskPlayer(player, target)
+        PoliceLaunchFriskPlayer(player, target)
     end
 end
 AddRemoteEvent("police:friskplayer", FriskPlayer)
 
 function PoliceRemoveVehicle(player)
-    if PlayerData[player].police ~= 1 then return end
-    if PlayerData[player].job ~= "police" then return end
     
     local vehicle = GetNearestVehicle(player)
     MoveVehicleToGarage(vehicle, player)
 end
 AddRemoteEvent("police:removevehicle", PoliceRemoveVehicle)
 
-function LaunchFriskPlayer(player, target)
-    if PlayerData[player].police ~= 1 then return end
-    if PlayerData[player].job ~= "police" then return end
+function PoliceLaunchFriskPlayer(player, target)
     if GetPlayerPropertyValue(target, "cuffed") ~= true then return end
     
     local x, y, z = GetPlayerLocation(player)
@@ -460,7 +628,7 @@ function LaunchFriskPlayer(player, target)
     end
     
     friskedPlayer = { id = tostring(target), name = PlayerData[tonumber(target)].accountid, inventory = PlayerData[tonumber(target)].inventory }
-    CallRemoteEvent(player, "OpenPersonalMenu", Items, PlayerData[player].inventory, PlayerData[player].name, player, playerList, GetPlayerMaxSlots(player), friskedPlayer)
+    CallRemoteEvent(player, "OpenPersonalMenu", Items, PlayerData[target].inventory, PlayerData[target].name, player, playerList, GetPlayerMaxSlots(player), friskedPlayer)
 end
 
 --------- INTERACTIONS END
@@ -519,6 +687,23 @@ function GetNearestVehicle(player, maxDist)
         end
     end
     return closestVehicle
+end
+
+function GetNearestDoor(player, maxDist, StreamedDoor)
+    local maxDist = maxDist or 300
+    local x, y, z = GetPlayerLocation(player)
+    local closestDoor
+    local dist
+    for k, v in pairs(StreamedDoor) do
+        local x2, y2, z2 = GetDoorLocation(v)
+        local currentDist = GetDistance3D(x, y, z, x2, y2, z2)
+        if (dist == nil or currentDist < dist) and currentDist <= tonumber(maxDist) then
+            closestDoor = v
+            AddPlayerChat(player,currentDist)
+            dist = currentDist
+        end
+    end
+    return closestDoor
 end
 
 function GetNearestPlayers(player, maxDist)

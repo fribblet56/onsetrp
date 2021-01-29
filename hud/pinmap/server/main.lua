@@ -84,12 +84,14 @@ AddEvent("OnPlayerJoin", OnPlayerJoin)
 
 local function PinmapRequestLegend(player)
     local kc = 0
-    for i = 1, #legendKeys do
-        CallRemoteEvent(player, "PinmapRegisterLegendKey", legendKeys[i].id,  legendKeys[i].displayText, legendKeys[i].iconPath)
-        for j, blip in ipairs(legendKeys[i].blips) do
-            CallRemoteEvent(player, "PinmapRegisterBlip", legendKeys[i].id, blip.x, blip.y)
+    Delay(1000, function()
+        for i = 1, #legendKeys do
+            CallRemoteEvent(player, "PinmapRegisterLegendKey", legendKeys[i].id,  legendKeys[i].displayText, legendKeys[i].iconPath)
+            for j, blip in ipairs(legendKeys[i].blips) do
+                CallRemoteEvent(player, "PinmapRegisterBlip", legendKeys[i].id, blip.x, blip.y)
+            end
         end
-    end
+    end)
 end
 AddRemoteEvent("PinmapRequestLegend", PinmapRequestLegend)
 

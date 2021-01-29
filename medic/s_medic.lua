@@ -1,18 +1,22 @@
 local _ = function(k, ...) return ImportPackage("i18n").t(GetPackageName(), k, ...) end
 
-local MAX_MEDIC = 20
+local MAX_MEDIC = 50
 local ALLOW_RESPAWN_VEHICLE = false
-local TIMER_RESPAWN_WAITER = 1800 -- 30 minutes
+local TIMER_RESPAWN_WAITER = 450 -- 30 minutes 1800
 local REVIVE_PERCENT_SUCCESS = 40 -- in percent
 local TIME_TO_REVIVE = 15 -- in seconds
 local AUTO_CALL_FOR_MEDIC = false
-local TIME_TO_HEAL = 5 -- in seconds
+local TIME_TO_HEAL = 15 -- in seconds
 local AMOUNT_TO_HEAL_PER_INTERACTION = 30 -- Hp that will be healed each time the medic interact
 
 local DEFAULT_RESPAWN_POINT = {x = 212124, y = 159055, z = 1305, h = 90}
 
 local VEHICLE_SPAWN_LOCATION = {
     {x = 208760, y = 154374, z = 1305, h = 90},
+}
+
+local HELICO_SPAWN_LOCATION = {
+    {x = 213527, y = 154150, z = 3105, h = 90},
 }
 
 local MEDIC_SERVICE_NPC = {
@@ -23,8 +27,13 @@ local MEDIC_VEHICLE_NPC = {
     {x = 212571, y = 159486, z = 1320, h = 90},
 }
 
+local MEDIC_HELICO_NPC = {
+    {x = 214713, y = 155793, z = 3145, h = 160},
+}
+
 local MEDIC_GARAGE = {
     {x = 215766, y = 161131, z = 1305},
+    {x = 214391, y = 153252, z = 3150}
 }
 
 local MEDIC_EQUIPMENT_NPC = {
@@ -42,13 +51,14 @@ local MEDIC_EQUIPEMENT_NEEDED = {
     {item = "health_kit", qty = 3},
 }
 
-local ITEM_MEDKIT_HEAL = 10
-local ITEM_MEDKIT_MAX_HEAL = 30
+local ITEM_MEDKIT_HEAL = 50
+local ITEM_MEDKIT_MAX_HEAL = 50
 local ITEM_ADRENALINE_SYRINGE_HEAL = 50
 local ITEM_TIME_TO_USE = 5
 
 local medicNpcIds = {}
 local medicVehicleNpcIds = {}
+local medicHelicoNpcIds = {}
 local medicGarageIds = {}
 local medicEquipmentNpcIds = {}
 local medicHospitalLocationIds = {}
@@ -72,16 +82,22 @@ AddEvent("OnPackageStart", function()
         SetNPCAnimation(v.npcObject, "WALLLEAN04", true)
         table.insert(medicVehicleNpcIds, v.npcObject)
     end
+
+    for k, v in pairs(MEDIC_HELICO_NPC) do
+        v.npcObject = CreateNPC(v.x, v.y, v.z, v.h)
+        table.insert(medicHelicoNpcIds, v.npcObject)
+    end
     
     for k, v in pairs(MEDIC_EQUIPMENT_NPC) do
         v.npcObject = CreateNPC(v.x, v.y, v.z, v.h)
         SetNPCAnimation(v.npcObject, "WALLLEAN04", true)
         table.insert(medicEquipmentNpcIds, v.npcObject)
     end
+
 end)
 
 AddEvent("OnPlayerJoin", function(player)
-    CallRemoteEvent(player, "medic:setup", medicNpcIds, medicVehicleNpcIds, medicGarageIds, medicEquipmentNpcIds, medicHospitalLocationIds)
+    CallRemoteEvent(player, "medic:setup", medicNpcIds, medicVehicleNpcIds, medicHelicoNpcIds, medicGarageIds, medicEquipmentNpcIds, medicHospitalLocationIds)
 end)
 
 --------- SERVICE AND EQUIPMENT
@@ -185,6 +201,7 @@ AddEvent("OnPlayerSpawn", function(player)-- On player death
     if PlayerData and PlayerData[player] then
         if PlayerData[player].has_been_revived == false or PlayerData[player].has_been_revived == nil then -- Clean inv
             AlterInventoryOnDeath(player)
+            PlayerData[player].inventory = {}
             SetPlayerCuffed(player, false)
         end
         GiveMedicEquipmentToPlayer(player)
@@ -193,6 +210,35 @@ end)
 
 function AlterInventoryOnDeath(player)  -- TODO
     PlayerData[player].inventory = {}
+end
+
+function DropInventoryOnDead(player)  -- TODO
+    local x,y,z = GetPlayerLocation(player)
+
+    for k,v in pairs(PlayerData[player].inventory) do
+        local newx = math.random(math.floor(x)-100,math.floor(x)+100)
+        local newy = math.random(math.floor(y)-100,math.floor(y)+100)
+
+        CreateObj( newx, newy, z, GetNumberOfItem(player, k), k, _(k))
+
+    end
+end
+
+function CreateObj( x, y, z, amount, item, text)
+    object = CreateObject(620, x, y, z - 100)
+    textObj = CreateText3D(text.." x"..amount, 15, x, y, z, 0,0,0)
+    SetObjectPropertyValue(object, "isitem", true, true)
+    SetObjectPropertyValue(object, "collision", false, true)
+    SetObjectPropertyValue(object, "item", item, true)
+    SetObjectPropertyValue(object, "amount", amount, true)
+    SetObjectPropertyValue(object, "textid", textObj)
+
+    Delay(300000, function(object, textObj)
+        if object ~= nil then
+            DestroyObject(object)
+            DestroyText3D(textObj)
+        end                           
+    end, object, textObj)
 end
 
 --------- SERVICE AND EQUIPMENT END
@@ -241,6 +287,51 @@ function SpawnMedicCar(player)-- to spawn an ambulance
     end
 end
 AddRemoteEvent("medic:spawnvehicle", SpawnMedicCar)
+
+function SpawnMedicHelico(player)-- to spawn an ambulance
+    -- #1 Check for the medic whitelist of the player
+    if PlayerData[player].medic ~= 1 then
+        CallRemoteEvent(player, "MakeErrorNotification", _("not_whitelisted"))
+        return
+    end
+    if PlayerData[player].job ~= "medic" then
+        CallRemoteEvent(player, "MakeErrorNotification", _("not_medic"))
+        return
+    end
+    
+    -- #2 Check if the player has a job vehicle spawned then destroy it
+    if PlayerData[player].job_vehicle ~= nil and ALLOW_RESPAWN_VEHICLE then
+        DestroyVehicle(PlayerData[player].job_vehicle)
+        DestroyVehicleData(PlayerData[player].job_vehicle)
+        PlayerData[player].job_vehicle = nil
+    end
+    
+    -- #3 Try to spawn the vehicle
+    if PlayerData[player].job_vehicle == nil then
+        local spawnPoint = HELICO_SPAWN_LOCATION[MedicGetClosestSpawnPoint(player)]
+        if spawnPoint == nil then return end
+        for k, v in pairs(GetStreamedVehiclesForPlayer(player)) do
+            local x, y, z = GetVehicleLocation(v)
+            if x == false then break end
+            local dist2 = GetDistance3D(spawnPoint.x, spawnPoint.y, spawnPoint.z, x, y, z)
+            if dist2 < 500.0 then
+                CallRemoteEvent(player, "MakeErrorNotification", _("cannot_spawn_vehicle"))
+                return
+            end
+        end
+        local vehicle = CreateVehicle(10, spawnPoint.x, spawnPoint.y, spawnPoint.z, spawnPoint.h)
+        SetVehicleLicensePlate(vehicle, "MEDH-"..PlayerData[player].accountid) 
+        SetVehicleColor(vehicle, "0xE20000")
+        PlayerData[player].job_vehicle = vehicle
+        CreateVehicleData(player, vehicle, 3)
+        SetVehicleRespawnParams(vehicle, false)
+        SetVehiclePropertyValue(vehicle, "locked", true, true)
+        CallRemoteEvent(player, "MakeNotification", _("spawn_vehicle_success", _("medic_car")), "linear-gradient(to right, #00b09b, #96c93d)")
+    else
+        CallRemoteEvent(player, "MakeErrorNotification", _("cannot_spawn_vehicle"))
+    end
+end
+AddRemoteEvent("medic:spawnhelico", SpawnMedicHelico)
 
 function DespawnMedicCar(player)-- to despawn an ambulance
     -- #2 Check if the player has a job vehicle spawned then destroy it
@@ -440,6 +531,7 @@ AddEvent("OnPlayerDeath", function(player, instigator)-- do some stuff when play
     SetPlayerSpawnLocation(player, DEFAULT_RESPAWN_POINT.x, DEFAULT_RESPAWN_POINT.y, DEFAULT_RESPAWN_POINT.z, DEFAULT_RESPAWN_POINT.h)-- HOSPITAL
     
     SetPlayerRespawnTime(player, TIMER_RESPAWN_WAITER * 1000)
+
     CallRemoteEvent(player, "medic:revivescreen:toggle", true)
     
     if GetMedicsOnDuty(player) > 0 then
@@ -452,6 +544,23 @@ AddEvent("OnPlayerDeath", function(player, instigator)-- do some stuff when play
     
     SetPlayerBusy(player)
     PlayerData[player].has_been_revived = false
+
+    Delay((TIMER_RESPAWN_WAITER * 1000) - 400, function( )
+        if PlayerData[player].has_been_revived == false then
+            if PlayerData[player].hat ~= nil then
+                DestroyObject(PlayerData[player].hat)
+                PlayerData[player].hat = nil
+            end
+
+            if PlayerData[player].job ~= "" then
+                PlayerData[player].job = ""
+                UpdateClothes(player)
+            end
+            if GetPlayerHealth(player) < 1 then
+                DropInventoryOnDead(player)
+            end
+        end
+    end)
 end)
 
 function CreateMedicCallout(player)
@@ -464,6 +573,7 @@ AddCommand("suicide", function(player)
 end)
 
 AddRemoteEvent("medic:giveup", function(player)
+    DropInventoryOnDead(player)
     PlayerData[player].has_been_revived = false
     SetPlayerRespawnTime(player, 0)
 end)
@@ -481,6 +591,7 @@ end)
 function MedicUseItem(player, item)
     if item == "health_kit" then -- PERSONNAL HEALTH KIT (Dont need to be medic)
         if GetPlayerHealth(player) < ITEM_MEDKIT_MAX_HEAL then
+            RemoveInventory(player, item, 1)
             CallRemoteEvent(player, "loadingbar:show", _("medic_item_use", _("health_kit")), ITEM_TIME_TO_USE)-- LOADING BAR
             SetPlayerAnimation(player, "COMBINE")
             local timer = CreateTimer(function()
@@ -497,7 +608,6 @@ function MedicUseItem(player, item)
                     SetPlayerHealth(player, 60)
                     PlayerData[player].health = 60
                 end
-                RemoveInventory(player, item, 1)
                 CallRemoteEvent(player, "MakeNotification", _("medic_item_health_kit_success"), "linear-gradient(to right, #00b09b, #96c93d)")
             end)
         else
@@ -541,6 +651,7 @@ function MedicUseItem(player, item)
             return
         end
         if IsPlayerBleeding(nearestPlayer) then
+            RemoveInventory(player, item, 1)
             CallRemoteEvent(player, "loadingbar:show", _("medic_item_use", _("bandage")), ITEM_TIME_TO_USE)-- LOADING BAR
             SetPlayerAnimation(player, "COMBINE")
             local timer = CreateTimer(function()
@@ -551,7 +662,6 @@ function MedicUseItem(player, item)
                 DestroyTimer(timer)
                 SetPlayerAnimation(player, "STOP")
                 StopBleedingForPlayer(nearestPlayer)
-                RemoveInventory(player, item, 1)
                 CallRemoteEvent(nearestPlayer, "damage:bleed:toggleeffect", 0)
                 CallRemoteEvent(player, "MakeNotification", _("medic_item_bandage_success"), "linear-gradient(to right, #00b09b, #96c93d)")
             end)

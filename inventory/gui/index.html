@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="../../garage/gui/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+	<meta charset="utf-8">
+</head>
+<body style="text-align:center; background-color: rgba(0,0,0,0);">
+
+<style type="text/css">
+    @font-face {
+      font-family: "police";
+      src: url("../../moneyBar/police.ttf");
+    }
+    .Cash{
+      font-family: "police", serif;
+      font-size: 40px;
+      color: green;
+    }
+
+</style>
+
+	<script src="index.js"></script>
+	<script src="../../onset-characterize/ui/jquery.js"></script>
+
+	<div class="container-fluid">
+		<div class="row justify-content-center">
+			<div class="jumbotron jumbotron-fluid col-6" style="border-radius: 8px; margin-top: 7%; background-color: #FDFEFE; border: 2px solid #F2F3F4">
+			<div class="container">
+			    <h1 class="display-4">- Printer -</h1>
+			    <div class="input-group mx-auto my-4 w-50">
+				    <input class="form-control text-center Cash" type="text" id="balance" placeholder="0€" readonly>
+				    <div class="input-group-prepend">
+					    <button class="btn btn-success" type="button" onclick="Withdraw()" style="border-top-right-radius: 5px; border-bottom-right-radius: 5px;">Retirer l'argent
+					    </button>
+					</div>
+				</div>
+			    <div class="lead">
+			    	<div class="progress mt-3 mx-4" style="height: 32px; border: 1px solid #85929E">
+						<div class="progress-bar progress-bar bg-success" id="paper-progress" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">Papier 0%</div>
+					</div>
+					<div class="progress mt-3 mx-4" style="height: 32px; border: 1px solid #85929E">
+						<div class="progress-bar progress-bar bg-warning" id="battery-progress" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">Batterie 0%</div>
+					</div>
+					<div class="progress mt-3 mx-4" style="height: 32px; border: 1px solid #85929E">
+						<div class="progress-bar progress-bar bg-danger" id="dommage-progress" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">Etat 0%</div>
+					</div>
+
+				</div>
+				<div class="form-inline text-center mt-5" style="  display: flex; justify-content: center;">
+
+					<div class="form-group">
+						<button type="button" onclick="AddPaper()" class="btn btn-success mr-2">Ajouter du papier</button>
+					</div>
+
+					<div class="form-group">
+						<button type="button" onclick="ChangeBattery()" class="btn btn-warning my-2" style="color: white">Changer de batterie</button>
+					</div>
+
+					<div class="form-group">
+						<button type="button" onclick="Repaire()" class="btn btn-danger ml-2">Entretenir Le printer</button>
+					</div>
+				</div>
+				<hr class="my-4">
+				<div class="form-inline text-center mt-5" style="  display: flex; justify-content: center;">
+
+					<div class="form-group">
+						<button type="button" onclick="ChangeStatu()" id="suplay" class="btn btn-outline-warning mr-2">Éteindre</button>
+					</div>
+
+					<div class="form-group">
+						<button type="button" onclick="closeEditor()" class="btn btn btn-outline-secondary w-100 my-2">Fermer</button>
+					</div>
+
+					<div class="form-group">
+						<button type="button" onclick="Destroy()" class="btn btn-outline-danger ml-2">Détruire</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

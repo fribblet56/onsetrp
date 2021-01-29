@@ -7,10 +7,15 @@ function OnPackageStart()
     -- Save all player data automatically
     CreateTimer(function()
         for k, v in pairs(GetAllPlayers()) do
+            if PlayerData[v] ~= nil then
+                if PlayerData[v].playTime ~= nil then
+                    PlayerData[v].playTime = PlayerData[v].playTime + 1
+                end
+            end
             SavePlayerAccount(v)
             CheckForBansFromOutside(v)
         end
-    end, 30000)
+    end, 60000)
 
     PeriodicCheckAllowedToPlay()
 end
@@ -43,6 +48,10 @@ end
 AddEvent("OnPlayerSteamAuth", OnPlayerSteamAuth)
 
 function OnPlayerQuit(player)
+    if PlayerData[player].hat ~= nil then
+        DestroyObject(PlayerData[player].hat)
+        PlayerData[player].hat = nil
+    end
     PlayerData[player].is_online = 0
     SavePlayerAccount(player)
     GatheringCleanPlayerActions(player)-- → Gathering
@@ -107,7 +116,7 @@ function OnAccountCheckIpBan(player)
 end
 
 function CreatePlayerAccount(player)
-    local query = mariadb_prepare(sql, "INSERT INTO `accounts` (`id`, `steamid`, `name`, `clothing`, `police`, `medic`, `inventory`, `position`, `admin`, `health`, `armor`, `thirst`, `hunger`, `bank_balance`, `created`, `phone_number`, `driver_license`, `gun_license`, `helicopter_license`, `drug_knowledge`, `job`, `is_cuffed`, `age`) VALUES (NULL, '?', 'Unregistered', '[]', '0', '0', '[]', '[]', '0', '100', '0', '100', '100', '4900', '0', NULL, '0', '0', '0', '[]', NULL, '0', '0');",
+    local query = mariadb_prepare(sql, "INSERT INTO `accounts` (`id`, `steamid`, `name`, `clothing`, `police`, `medic`, `inventory`, `position`, `admin`, `health`, `armor`, `thirst`, `hunger`, `bank_balance`, `created`, `phone_number`, `driver_license`, `gun_license`, `rebel_car_license`, `rebel_gun_license`, `helicopter_license`, `drug_knowledge`, `job`, `is_cuffed`, `age`, `mission`) VALUES (NULL, '?', 'Unregistered', '[]', '0', '0', '[]', '[]', '0', '100', '0', '100', '100', '4900', '0', NULL, '0', '0', '0', '0', '0', '0','[]', NULL, '0', '0', '[]');",
         tostring(GetPlayerSteamId(player)))
     
     mariadb_query(sql, query, OnAccountCreated, player)
@@ -146,24 +155,30 @@ function OnAccountLoaded(player)
         KickPlayer(player, "An error occured while loading your account 😨")
     else
         local result = mariadb_get_assoc(1)
+        
+        PlayerData[player].id = math.tointeger(result['id'])
         PlayerData[player].admin = math.tointeger(result['admin'])
         PlayerData[player].bank_balance = math.tointeger(result['bank_balance'])
         PlayerData[player].name = tostring(result['name'])
         PlayerData[player].clothing = json_decode(result['clothing'])
         PlayerData[player].police = math.tointeger(result['police'])
         PlayerData[player].medic = math.tointeger(result['medic'])
+        PlayerData[player].mechanic = math.tointeger(result['mechanic'])
         PlayerData[player].driver_license = math.tointeger(result['driver_license'])
         PlayerData[player].gun_license = math.tointeger(result['gun_license'])
         PlayerData[player].helicopter_license = math.tointeger(result['helicopter_license'])
-        PlayerData[player].inventory = json_decode(result['inventory'])        
+        PlayerData[player].inventory = json_decode(result['inventory'])
         PlayerData[player].created = math.tointeger(result['created'])
         PlayerData[player].position = json_decode(result['position'])
         PlayerData[player].drug_knowledge = json_decode(result['drug_knowledge'])
-        PlayerData[player].job = result['job']
         PlayerData[player].is_cuffed = math.tointeger(result['is_cuffed'])
         PlayerData[player].age = math.tointeger(result['age'])
-        PlayerData[player].health = math.tointeger(result['health'])
-        
+        PlayerData[player].health = result['health']
+        PlayerData[player].rebel_gun_license = math.tointeger(result['rebel_gun_license'])
+        PlayerData[player].rebel_car_license = math.tointeger(result['rebel_car_license'])
+        PlayerData[player].mission = json_decode(result['mission']) 
+        PlayerData[player].playTime = math.tointeger(result['time_play'])
+
         if result['phone_number'] and result['phone_number'] ~= "" then
             PlayerData[player].phone_number = tostring(result['phone_number'])
         else
@@ -190,11 +205,11 @@ function OnAccountLoaded(player)
             DisplayPlayerBackpack(player)
         end
 
-        setPositionAndSpawn(player)
-
         LoadPlayerPhoneContacts(player)
         print("Account ID " .. PlayerData[player].accountid .. " loaded for " .. GetPlayerIP(player))
         CheckDevMode(player)
+
+        setPositionAndSpawn(player)
     end
 end
 
@@ -288,6 +303,8 @@ function OnPhoneContactsLoaded(player)
             PlayerData[player].phone_contacts[i] = {id = tostring(contact['id']), name = contact['name'], phone = contact['phone']}
         end
     end
+
+    PlayerData[player].phone_contacts[mariadb_get_row_count() + 1] = {id = tostring(mariadb_get_row_count() + 1), name = "Dépanneur", phone = "3333"}
     
     print("Phone contacts loaded for " .. PlayerData[player].accountid)
 end
@@ -300,7 +317,8 @@ function CreatePlayerData(player)
     PlayerData[player].clothing = {}
     PlayerData[player].police = 0
     PlayerData[player].medic = 0
-    PlayerData[player].inventory = {cash = 100}
+    PlayerData[player].mechanic = 0
+    PlayerData[player].inventory = {cash = 1200}
     PlayerData[player].driver_license = 0
     PlayerData[player].gun_license = 0
     PlayerData[player].helicopter_license = 0
@@ -312,7 +330,7 @@ function CreatePlayerData(player)
     PlayerData[player].thirst = 100
     PlayerData[player].hunger = 100
     PlayerData[player].health = 100
-    PlayerData[player].bank_balance = 7000 -- For BETA 3
+    PlayerData[player].bank_balance = 8000 -- For BETA 3
     PlayerData[player].job_vehicle = nil
     PlayerData[player].job = ""
     PlayerData[player].phone_contacts = {}
@@ -322,7 +340,11 @@ function CreatePlayerData(player)
     PlayerData[player].drug_knowledge = {}
     PlayerData[player].is_cuffed = 0
     PlayerData[player].age = 30
-    
+    PlayerData[player].rebel_gun_license = 0
+    PlayerData[player].rebel_car_license = 0
+    PlayerData[player].playTime = 0
+    PlayerData[player].mission = {}
+
     print("Data created for : " .. player)
 end
 
@@ -337,7 +359,7 @@ function DestroyPlayerData(player)
     --     PlayerData[player].job_vehicle = nil
     -- end
 
-    local attachedObjects = { "backpack", "mask_1", "mask_2", "mask_3", "mask_4" }
+    local attachedObjects = { "backpack", "mask_1", "mask_2", "mask_3", "mask_4", "hat", "hand" }
 
     for k, itemToRemove in pairs(attachedObjects) do
         if PlayerData[player][itemToRemove] ~= nil then
@@ -366,7 +388,7 @@ function SavePlayerAccount(player)
     local x, y, z = GetPlayerLocation(player)
     PlayerData[player].position = {x = x, y = y, z = z}
     
-    local query = mariadb_prepare(sql, "UPDATE accounts SET admin = ?, bank_balance = ?, health = ?, armor = ?, hunger = ?, thirst = ?, name = '?', clothing = '?', inventory = '?', created = '?', position = '?', driver_license = ?, gun_license = ?, helicopter_license = ?, drug_knowledge = '?', job = '?', is_cuffed = ?, age = ?, is_online = '?' WHERE id = ? LIMIT 1;",
+    local query = mariadb_prepare(sql, "UPDATE accounts SET admin = ?, bank_balance = ?, health = ?, armor = ?, hunger = ?, thirst = ?, name = '?', clothing = '?', inventory = '?', created = '?', position = '?', driver_license = ?, gun_license = ?, helicopter_license = ?, drug_knowledge = '?', is_cuffed = ?, age = ?, rebel_car_license = ?, rebel_gun_license = ?, police = ?, medic = ?, mechanic = ?, mission = '?', time_play = ?, is_online = '?' WHERE id = ? LIMIT 1;",
         PlayerData[player].admin,
         PlayerData[player].bank_balance,
         PlayerData[player].health,
@@ -382,9 +404,15 @@ function SavePlayerAccount(player)
         PlayerData[player].gun_license,
         PlayerData[player].helicopter_license,
         json_encode(PlayerData[player].drug_knowledge),
-        PlayerData[player].job or "",
         PlayerData[player].is_cuffed or 0,
         PlayerData[player].age or 30,
+        PlayerData[player].rebel_car_license,
+        PlayerData[player].rebel_gun_license,
+        PlayerData[player].police,
+        PlayerData[player].medic,
+        PlayerData[player].mechanic,
+        json_encode(PlayerData[player].mission),
+        PlayerData[player].playTime,
         PlayerData[player].is_online or 0,
         PlayerData[player].accountid
     )

@@ -2,6 +2,7 @@ local Dialog = ImportPackage("dialogui")
 local _ = function(k, ...) return ImportPackage("i18n").t(GetPackageName(), k, ...) end
 
 local IsOnDuty = false
+local DetectorIsActived = false
 
 local policeMenu
 local policeFineMenu
@@ -18,6 +19,8 @@ AddRemoteEvent("police:setup", function(_policeNpcIds, _policeGarageIds, _police
     policeGarageIds = _policeGarageIds
     policeVehicleNpcIds = _policeVehicleNpcIds
     policeEquipmentNpcIds = _policeEquipmentNpcIds
+    IsOnDuty = false
+    DetectorIsActived = false
 end)
 
 AddRemoteEvent("police:client:isonduty", function(isOnDuty)
@@ -26,7 +29,7 @@ end)
 
 AddEvent("OnTranslationReady", function()
         -- POLICE MENU
-        policeMenu = Dialog.create(_("police_menu"), nil, _("handcuff_player"), _("put_player_in_vehicle"), _("remove_player_from_vehicle"), _("give_player_fine"),_("callouts"), _("call_police_mecano"), _("cancel"))
+        policeMenu = Dialog.create(_("police_menu"), nil, "Menotter / Démenotter ", _("put_player_in_vehicle"), _("remove_player_from_vehicle"), _("give_player_fine"), _("callouts"), "Fouiller le Joueur", "Détecteur de Printer", "Déverrouiller",_("cancel"))
         
         -- FINE MENU
         policeFineMenu = Dialog.create(_("finePolice"), nil, _("give_fine"), _("cancel"))
@@ -34,7 +37,7 @@ AddEvent("OnTranslationReady", function()
         Dialog.addTextInput(policeFineMenu, 1, _("reason") .. " :")
         
         -- SPAWN VEHICLE MENU
-        policeNpcGarageMenu = Dialog.create(_("police_garage_menu"), nil, _("spawn_despawn_patrol_car"), _("cancel"))
+        policeNpcGarageMenu = Dialog.create(_("police_garage_menu"), nil, _("spawn_despawn_patrol_car"), "Subaru", _("cancel"))
 
         -- POLICE EQUIPMENT MENU
         policeEquipmentMenu = Dialog.create(_("police_armory"), nil, _("police_check_my_equipment"), _("cancel"))
@@ -113,7 +116,19 @@ AddEvent("OnDialogSubmit", function(dialog, button, ...)
             CallEvent("callouts:openingmenu")                        
         end
         if button == 6 then
-            CallRemoteEvent("police:removevehicle")            
+            CallRemoteEvent("police:friskplayer")            
+        end
+        if button == 7 then
+            if DetectorIsActived == false then
+                CallRemoteEvent("police:findPrinter")
+                DetectorIsActived = true
+            else
+                CallRemoteEvent("police:StopfindPrinter")
+                DetectorIsActived = false
+            end          
+        end
+        if button == 8 then
+            CallRemoteEvent("police:Open", GetStreamedDoors())            
         end
     end
     
@@ -135,6 +150,8 @@ AddEvent("OnDialogSubmit", function(dialog, button, ...)
     if dialog == policeNpcGarageMenu then
         if button == 1 then
             CallRemoteEvent("police:spawnvehicle")
+        elseif button == 2 then
+            CallRemoteEvent("police:spawnspecialpolicecar")
         end
     end
 

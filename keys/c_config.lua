@@ -9,14 +9,15 @@ PHONE_CLOSE_KEY = "Escape" -- To close the phone
 HOUSING_MENU_KEY = "F1" -- To show the housing menu
 ID_CARD_MENU_KEY = "F2" -- To show the ID CARD menu
 JOB_MENU_KEY = "F3" -- To show the job menu
-INVENTORY_KEY = "I" -- To show the inventory
+NOTLEGALE_MENU_KEY = "F4" -- To show the NOTLEGALE menu
+INVENTORY_KEY = "U" -- To show the inventory
 SHORTCUT_VIEWER_KEY = "F8" -- To display the shortcuts
 ANIMATION_MENU_KEY = "G" -- To open the animation wheel
 MAP_OPEN_KEY = "M" -- To open the big map
 MAP_ZOOMIN_KEY = "Page Up" -- To zoom in the map
 MAP_ZOOMOUT_KEY = "Page Down" -- To zoom out in the map
 FPS_KEY = "V" -- To toggle FPS mode
-VEHICLE_LOCK_KEY = "U" -- To lock the vehicle
+VEHICLE_LOCK_KEY = "L" -- To lock the vehicle
 VEHICLE_MENU_KEY = "F1" -- To open the vehicle menu
 VEHICLE_ENGINE_KEY = "X" -- To toggle vehicle engine
 VEHICLE_TRUNK_KEY = "O" -- To open the vehicle trunk
@@ -35,6 +36,7 @@ function GetAllKeybinds()
         {label = _("HOUSING_MENU_KEY"), key = HOUSING_MENU_KEY},
         {label = _("ID_CARD_MENU_KEY"), key = ID_CARD_MENU_KEY},
         {label = _("JOB_MENU_KEY"), key = JOB_MENU_KEY},
+        {label = _("NOTLEGALE_MENU_KEY"), key = NOTLEGALE_MENU_KEY},
         {label = _("INVENTORY_KEY"), key = INVENTORY_KEY},
         {label = _("SHORTCUT_VIEWER_KEY"), key = SHORTCUT_VIEWER_KEY},
         {label = _("ANIMATION_MENU_KEY"), key = ANIMATION_MENU_KEY},

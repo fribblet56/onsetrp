@@ -18,6 +18,10 @@ AddEvent("OnTranslationReady", function()
     Dialog.addTextInput(characterCreation, 1, _("first_name"))
     Dialog.addTextInput(characterCreation, 1, _("last_name"))
     Dialog.addTextInput(characterCreation, 1, _("age"))
+    SetIgnoreLookInput(true)
+    SetIgnoreMoveInput(true)
+    ShowMouseCursor(true)
+    SetInputMode(INPUT_UI)
 end)
 
 AddEvent("OnKeyPress", function(key)
@@ -55,6 +59,7 @@ AddRemoteEvent("askClientCreation", function()
     SetIgnoreLookInput(true)
     SetIgnoreMoveInput(true)
     ShowMouseCursor(true)
+    SetInputMode(INPUT_UI)
     Dialog.show(characterCreation)
 end)
 
@@ -110,6 +115,9 @@ AddRemoteEvent("ClientChangeClothing", function(player, part, piece, r, g, b, a)
         SkeletalMeshComponent = GetPlayerSkeletalMeshComponent(player, "Body")
         SkeletalMeshComponent:SetMaterial(3, UMaterialInterface.LoadFromAsset(BodyMaterial[piece]))
 		SkeletalMeshComponent:SetColorParameterOnMaterials("Skin Color", FLinearColor(r or 0, g or 0, b or 0, a or 0))
+    elseif part == 7 then
+        SkeletalMeshComponent = GetPlayerSkeletalMeshComponent(player, "Body")
+        SkeletalMeshComponent:SetSkeletalMesh(USkeletalMesh.LoadFromAsset(piece))
     end
     if pieceName ~= nil then
         SkeletalMeshComponent:SetSkeletalMesh(USkeletalMesh.LoadFromAsset(piece))
@@ -125,6 +133,6 @@ BodyMaterial = {
     noLegs = "/Game/CharacterModels/Materials/HZN_Materials/M_HZN_Body_NoLegs",
     noShoes = "/Game/CharacterModels/Materials/HZN_Materials/M_HZN_Body_NoShoes",
     noShoesLegs = "/Game/CharacterModels/Materials/HZN_Materials/M_HZN_Body_NoShoesLegs",
-    noShoesLegsTorso = "/Game/CharacterModels/Materials/HZN_Materials/M_HZN_Body_NoShoesLegsTorso",
+    noShoesLegsTorso = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_FormalShirt2_LPR",
     noTorso = "/Game/CharacterModels/Materials/HZN_Materials/M_HZN_Body_NoTorso"
 }

@@ -2,13 +2,13 @@ local _ = function(k,...) return ImportPackage("i18n").t(GetPackageName(),k,...)
 
 function OnPlayerChat(player, message)
     -- Region message
-    message = '<span>'..PlayerData[player].name..'('..player..'):</> '..message
-
-    for k, v in pairs(GetStreamedPlayersForPlayer(player)) do
-        if player and v and IsPlayerStreamedIn(player, v) then
-            AddPlayerChat(v, message)
-        end
+    if PlayerData[player].admin == 1 then
+        message = '<span style="color: #EC7063">[Admin] '..PlayerData[player].name..'</>: '..message
+    else
+        message = '<span style="color: #85C1E9">[Joueur] '..PlayerData[player].name..'</>: '..message
     end
+
+    AddPlayerChatAll(message)
 
     local query = mariadb_prepare(sql, "INSERT INTO logs VALUES (NULL, UNIX_TIMESTAMP(), '?');",
 		message)
@@ -79,11 +79,138 @@ AddEvent("OnPlayerChat", OnPlayerChat)
 --     SetPlayerHealth(player, 0)
 -- end)
 
+AddEvent("OnPlayerSpawn", function( player )
+    Delay(5000, function ( )
+        AddPlayerChatAll('<span color="#EC7063">'..PlayerData[player].name..' a rejoint l\'île ['..GetPlayerCount()..'/'..GetMaxPlayers()..']</>')
+    end)
+end)
+
 AddCommand("getpos", function(player)
     if PlayerData[player].admin ~= 1 then return end
     local x, y, z = GetPlayerLocation(player)
     AddPlayerChat(player, "X : "..x.." Y : "..y.." Z : "..z)
 end)
+
+AddCommand("getprinter", function(player)
+    if PlayerData[player].admin ~= 1 then return end
+    for k,v in pairs(allprinter) do
+        AddPlayerChat(player,v.location.x.."/"..v.location.y.."/"..v.location.z)
+    end
+end)
+
+AddCommand("job", function(player, target, jobname)
+    if PlayerData[player].admin ~= 1 then return end
+    if target == nil then return end
+    
+    PlayerData[tonumber(target)].job = jobname
+    UpdateClothes(tonumber(target))
+    CallRemoteEvent(tonumber(target), "MakeNotification", "Vous êtes maintenant "..jobname, "#5DADE2")
+
+end)
+
+AddCommand("whitelist", function(player, target, id, stat)
+    if PlayerData[player].admin ~= 1 then return end
+
+    if tonumber(id) > 3 then return end 
+    
+    if tonumber(id) == 1 then
+        PlayerData[target].police = tonumber(stat)
+        CallRemoteEvent(target, "MakeNotification", "Vous êtes maintenant police", "#5DADE2")
+    end
+    if tonumber(id) == 2 then
+        PlayerData[target].medic = tonumber(stat)
+        CallRemoteEvent(target, "MakeNotification", "Vous êtes maintenant medic", "#5DADE2")
+    end
+    if tonumber(id) == 3 then
+        PlayerData[target].mechanic = tonumber(stat)
+        CallRemoteEvent(target, "MakeNotification", "Vous êtes maintenant mechanic", "#5DADE2")
+    end
+
+end)
+
+AddCommand("police", function(player, target, stat)
+    if PlayerData[player].admin ~= 1 or PlayerData[player].police > 2 then return end
+
+    if tonumber(id) > 3 then return end 
+    
+    PlayerData[target].police = tonumber(stat)
+    CallRemoteEvent(target, "MakeNotification", "Vous êtes maintenant police de rank "..stat, "#5DADE2")
+
+end)
+
+AddCommand("delcar", function(player)
+    if PlayerData[player].admin ~= 1 then return end
+        
+    local target = GetNearestVehicle(player, 250)
+
+    if target ~= nil then
+        if VehicleData[target] == nil then
+            DestroyVehicle (target)
+        else
+            CallRemoteEvent(player, "MakeErrorNotification", "Vous ne pouvez pas supprimer la voiture d'un Joueur.")
+        end
+    else
+        CallRemoteEvent(player, "MakeErrorNotification", "Aucun vehicle")
+    end
+
+end)
+
+AddCommand("healcar", function(player)
+    if PlayerData[player].admin ~= 1 then return end
+        
+    local target = GetNearestVehicle(player, 250)
+
+    if target ~= nil then
+        SetVehicleHealth(target, 5000)
+        for i=1,8 do
+            SetVehicleDamage(target, i, 0.0)
+        end
+        CallRemoteEvent(player, "MakeNotification", "Vehicle Health: 5000", "#5DADE2")
+    else
+        CallRemoteEvent(player, "MakeErrorNotification", "Aucun vehicle")
+    end
+
+end)
+
+AddCommand("nitro", function(player)
+    if PlayerData[player].admin ~= 1 then return end
+        
+    local target = GetNearestVehicle(player, 250)
+
+    if target ~= nil then
+            if VehicleData[target].nitro == 1 then
+                AttachVehicleNitro(target , false)
+                VehicleData[target].nitro = 0
+                CallRemoteEvent(player, "MakeNotification", "Nitro: false", "#5DADE2")
+            else
+                AttachVehicleNitro(target , true)
+                VehicleData[target].nitro = 1
+                CallRemoteEvent(player, "MakeNotification", "Nitro: true", "#5DADE2")
+            end
+    else
+        CallRemoteEvent(player, "MakeErrorNotification", "Aucun vehicle")
+    end
+
+end)
+
+AddCommand("unflip", function(player)
+    if PlayerData[player].admin ~= 1 then return end
+        
+    local target = GetNearestVehicle(player, 250)
+
+    if target ~= nil then
+
+        local rx, ry, rz = GetVehicleRotation(target)
+
+        SetVehicleRotation(target, 0, ry, 0 )
+
+        CallRemoteEvent(player, "MakeNotification", "Vehicle unflip", "#5DADE2")
+    else
+        CallRemoteEvent(player, "MakeErrorNotification", "Aucun vehicle")
+    end
+
+end)
+
 -- AddCommand("bank", function(player)
 --     if PlayerData[player].admin ~= 1 then
 --         return
@@ -141,24 +268,24 @@ AddCommand("tppos", function(player, x, y, z)
     SetPlayerLocation(player, x, y, z)
 end)
 
--- AddCommand( "doorinfo", function( iPlayer )
---     local door = false
---     local x, y, z = GetPlayerLocation( iPlayer )
+AddCommand( "doorinfo", function( iPlayer )
+    local door = false
+    local x, y, z = GetPlayerLocation( iPlayer )
 
---     for k, v in pairs( GetAllDoors() ) do
---         local x2, y2, z2 = GetDoorLocation( v )
+    for k, v in pairs( GetAllDoors() ) do
+        local x2, y2, z2 = GetDoorLocation( v )
 
---         if GetDistance3D( x, y, z, x2, y2, z2 ) < 200 then
---             door = v
---         end
---     end
+        if GetDistance3D( x, y, z, x2, y2, z2 ) < 200 then
+            door = v
+        end
+    end
 
---     if not door or not IsValidDoor( door ) then
---         AddPlayerChat( iPlayer, "No close door found" )
---         return 
---     end
+    if not door or not IsValidDoor( door ) then
+        AddPlayerChat( iPlayer, "No close door found" )
+        return 
+    end
 
---     local x, y, z = GetDoorLocation( door )
+    local x, y, z = GetDoorLocation( door )
 
---     print( "{ entity = -1, model = " .. GetDoorModel( door ) .. ", x = " .. x .. ", y = " .. y .. ", z = " .. z .. "}")        
--- end )
+    print( "{ entity = -1, model = " .. GetDoorModel( door ) .. ", x = " .. x .. ", y = " .. y .. ", z = " .. z .. "}")        
+end )

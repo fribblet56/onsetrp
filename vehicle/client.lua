@@ -7,18 +7,21 @@ local vehicleKeys
 
 AddEvent("OnTranslationReady", function()
     -- vehicleMenu = Dialog.create("Vehicle", nil, _("trunk"), _("unflip"), _("unlock_lock"), _("keys"), _("cancel"))
-    vehicleMenu = Dialog.create("Vehicle", nil, _("unflip"), _("unlock_lock"), _("cancel"))
+    vehicleMenu = Dialog.create("Vehicle", nil, _("unlock_lock"), _("keys"), _("cancel"))
 
     vehicleKeys = Dialog.create(_("keys"), nil, _("give_key"), _("remove_key"), _("cancel"))
     Dialog.addSelect(vehicleKeys, 1, _("player"), 5)
     Dialog.addSelect(vehicleKeys, 1, _("player"), 1)
 end)
 
-function OnPlayerStartEnterVehicle(vehicle)
+function OnPlayerStartEnterVehicle(vehicle, seat)
     if GetVehiclePropertyValue(vehicle, "locked") then 
         MakeNotification(_("this_vehicle_locked"), "linear-gradient(to right, #ff5f6d, #ffc371)")
         return false 
-    end 
+    end
+    if seat == 1 then
+        MakeNotification("Appuyer sur X pour démarrer", "#5DADE2", 5000)
+    end
 end
 AddEvent("OnPlayerStartEnterVehicle", OnPlayerStartEnterVehicle)
 
@@ -87,44 +90,19 @@ AddRemoteEvent("OpenVehicleMenu", function()
 end)
 
 AddRemoteEvent("OpenVehicleKeys", function(keyslist, playerlist)
-    local keys = {}
-    for k,v in pairs(keyslist) do
-        if PlayerData[k] == nil then
-            goto continue
-        end
-        if PlayerData[k].name == nil then
-            goto continue
-        end
-        keys[tostring(k)] = PlayerData[k].name
-        ::continue::
-    end
-    local players = {}
-    for k,v in pairs(playerlist) do
-        if PlayerData[k] == nil then
-            goto continue
-        end
-        if PlayerData[k].name == nil then
-            goto continue
-        end
-        players[tostring(k)] = PlayerData[k].name
-        ::continue::
-    end
-    Dialog.setSelectLabeledOptions(vehicleKeys, 1, 1, keys)
-    Dialog.setSelectLabeledOptions(vehicleKeys, 1, 2, players)
+    Dialog.setSelectLabeledOptions(vehicleKeys, 1, 1, keyslist)
+    Dialog.setSelectLabeledOptions(vehicleKeys, 1, 2, playerlist)
     Dialog.show(vehicleKeys)
 end)
 
 AddEvent("OnDialogSubmit", function(dialog, button, ...)
     local args = { ... }
 	if dialog == vehicleMenu then
-		if button == 1 then
-            CallRemoteEvent("UnflipVehicle")
-        end
-        if button == 2 then
+        if button == 1 then
             CallRemoteEvent("unlockVehicle")
         end
-        if button == 3 then
-            -- CallRemoteEvent("VehicleKeys")
+        if button == 2 then
+            CallRemoteEvent("VehicleKeys")
         end
     end
 
@@ -133,6 +111,7 @@ AddEvent("OnDialogSubmit", function(dialog, button, ...)
             if args[2] == "" then
                 MakeNotification(_("select_player"), "linear-gradient(to right, #ff5f6d, #ffc371)")
             else
+                AddPlayerChat("Player:"..args[2])
                 CallRemoteEvent("VehicleGiveKey", args[2])
             end
         end

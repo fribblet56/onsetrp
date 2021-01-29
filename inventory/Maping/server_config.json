@@ -1,0 +1,35 @@
+{
+	"servername": "[FR] Coronavirus en dev ",
+	"servername_short": "Onset Server",
+	"gamemode": "Roleplay",
+	"website_url": "https://playonset.com",
+	"ipaddress": "51.254.246.69",
+	"port": 7780,
+	"maxplayers": 20,
+	"password": "7249684",
+	"timeout": 15000,
+	"iplimit": 5,
+	"masterlist": true,
+	"plugins": [
+		"mariadb",
+		"ini-plugin"
+	],
+    "packages": [
+        "default",
+		"texturesol1",
+		"freeroam",
+		"noclip",
+		"mapeditor",
+		"scoreboard",
+        "NicoMenu",
+        "sandbox",
+        "AddPack",
+        "propsloaded"
+    ],
+	"stream_distance": 12000.0,
+	"stream_update_rate": 0.05,
+	"voice": true,
+	"voice_sample_rate": 24000,
+	"voice_distance": 4000.0,
+	"voice_spatialization": true
+}

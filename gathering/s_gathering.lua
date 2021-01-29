@@ -15,7 +15,7 @@ gatherTable = {
                 step_require_tool = "lumberjack_saw",
                 step_processed_item = "wood_plank", -- item that will be given
                 step_processed_item_number = 2, -- number of item that will be given
-                step_process_time = 30, -- Time in seconds to process one item
+                step_process_time = 10, -- Time in seconds to process one item
                 step_animation = "COMBINE", -- Animation for processing
                 step_animation_attachement = nil
             }
@@ -37,7 +37,7 @@ gatherTable = {
         },
         gather_item = "peach",
         gather_animation = "PICKUP_UPPER",
-        gather_time = 4,
+        gather_time = 15,
         gather_rp_props = {
             -- Peach trees
             {model = 145, x = -174006, y = 10457, z = 1773, rx = 0, ry = 10, rz = 0},
@@ -51,88 +51,6 @@ gatherTable = {
         },
         sell_zone = {
             {x = -167521, y = -39359, z = 1146, h = 180, item_to_sell = "peach", price_per_unit = 2, sell_time = 2}
-        }
-    },
-    {-- COCAINE
-        gather_zone = {
-            {x = -88620, y = -117082, z = 2396}
-        },
-        gather_item = "coca_leaf",
-        gather_time = 7,
-        process_steps = {
-            {
-                step_zone = {x = -223006, y = 78605, z = 1625},
-                step_require = "coca_leaf",
-                step_require_number = 3,
-                step_processed_item = "cocaine",
-                step_processed_item_number = 1,
-                step_process_time = 15,
-            }
-        },
-        require_knowledge = true,
-    },
-    {-- CANNABIBIL
-        gather_zone = {
-            {x = -98038, y = -66277, z = 4634}
-        },
-        gather_item = "weed",
-        gather_time = 10,
-        require_knowledge = true,
-        gather_rp_props = {
-            {model = 64, x = -98290, y = -66618, z = 4598},
-            {model = 65, x = -98019, y = -66558, z = 4591},
-            {model = 64, x = -98197, y = -66257, z = 4542},
-            {model = 65, x = -97982, y = -66069, z = 4508},
-            {model = 64, x = -98420, y = -66071, z = 4592},
-            {model = 65, x = -98544, y = -66525, z = 4600},
-            {model = 64, x = -98158, y = -66921, z = 4660},
-            {model = 65, x = -97786, y = -67232, z = 4772},
-            {model = 64, x = -97533, y = -66824, z = 4696},
-        }
-    },
-    {-- FISHING
-        gather_zone = {
-            {x = 232464, y = 193521, z = 112},
-            {x = -220130, y = 23036, z = 107},
-        },
-        gather_item = "herring",
-        require_tool = "fishing_rod",
-        gather_animation = "FISHING",
-        gather_time = 6,
-        gather_animation_attachement = {modelid = 1111, bone = "hand_r"},
-        sell_zone = {
-            {x = -21295, y = -22954, z = 2080, h = -90, item_to_sell = "herring", price_per_unit = 7, sell_time = 5}
-        }
-    },
-    {-- MINING
-        gather_zone = {
-            {x = -101174, y = 98223, z = 180}
-        },
-        gather_item = "iron_ore",
-        require_tool = "pickaxe",
-        gather_animation = "PICKAXE_SWING",
-        gather_time = 18,
-        gather_animation_attachement = {modelid = 1063, bone = "hand_r"},
-        process_steps = {
-            {
-                step_zone = {x = -82629, y = 90991, z = 481},
-                step_require = "iron_ore",
-                step_require_number = 1,
-                step_processed_item = "iron_ingot",
-                step_processed_item_number = 2,
-                step_process_time = 18,
-            },
-            {
-                step_zone = {x = -191437, y = -31107, z = 1148},
-                step_require = "iron_ingot",
-                step_require_number = 2,
-                step_processed_item = "iron_pipe",
-                step_processed_item_number = 1,
-                step_process_time = 30,
-            }
-        },
-        sell_zone = {
-            {x = 67862, y = 184741, z = 535, h = 90, item_to_sell = "iron_pipe", price_per_unit = 54, sell_time = 5}
         }
     }
 }

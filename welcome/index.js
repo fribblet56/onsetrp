@@ -1,15 +1,48 @@
+isCreated = false
+
 function initWelcome(created) {
     if (created) {
-        document.querySelector('#spawn').classList.remove("hidden")
+    	isCreated = true
     } else {
-        document.querySelector('#create-character').classList.remove("hidden")
+    	isCreated = false
     }
 }
 
-document.querySelector('#create-character-btn').addEventListener('click', function() {
-    window.ue.game.callevent("CloseAndCreateCharacter", "[]");
-})
+function button(){
+	if(isCreated){
+		window.ue.game.callevent("CloseAndSpawn", "[]");
+	}else{
+		window.ue.game.callevent("CloseAndCreateCharacter", "[]");
+	}
+}
 
-document.querySelector('#spawn-and-close').addEventListener('click', function() {
-    window.ue.game.callevent("CloseAndSpawn", "[]");
-})
+function PlayerMax(_PlayerMax){
+	document.getElementById("PlayerMax").innerHTML = _PlayerMax;
+}
+
+function PlayerNumber(_PlayerNumber){
+	document.getElementById("PlayerNumber").innerHTML = _PlayerNumber;
+}
+
+function PlayerName(_PlayerName){
+	document.getElementById("PlayerName").innerHTML = "Pseudo en jeu: "+_PlayerName;
+}
+
+function PlayerPseudo(_PlayerPseudo){
+	document.getElementById("PlayerPseudo").innerHTML = _PlayerPseudo;
+}
+
+function PlayerSteamId(_PlayerSteamId){
+	document.getElementById("PlayerSteamId").innerHTML = "Votre SteamId: "+_PlayerSteamId;
+}
+
+function PlayerId(_PlayerId){
+	document.getElementById("PlayerId").innerHTML = "Votre Id: "+_PlayerId;
+}
+
+function PlayTime(_Time){
+
+	h = _Time / 60
+
+	document.getElementById("PlayerJob").innerHTML = "Heure(s) de jeu: "+parseInt(h)+"H";
+}

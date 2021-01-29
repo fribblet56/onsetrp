@@ -1,11 +1,12 @@
 local _ = function(k,...) return ImportPackage("i18n").t(GetPackageName(),k,...) end
 
-local minutes = 20
+local minutes = 30
 
-local MINIMUM_WAGE = 50
-local JOB_WAGE = 100
-local POLICE_WAGE = 200
-local MEDIC_WAGE = 500
+local MINIMUM_WAGE = 250
+local JOB_WAGE = 853
+local MECHANIC_WAGE = 750
+local POLICE_WAGE = 1173
+local MEDIC_WAGE = 3250
 
 CreateTimer(function()
     for key, player in pairs(GetAllPlayers()) do
@@ -18,10 +19,10 @@ CreateTimer(function()
             elseif PlayerData[player].job == "police" then
                 PlayerData[player].bank_balance = PlayerData[player].bank_balance + POLICE_WAGE
                 CallRemoteEvent(player, "MakeSuccessNotification", _("salary_notification", _("price_in_currency", tostring(POLICE_WAGE))))
-            elseif PlayerData[player].job ~= nil then
-                PlayerData[player].bank_balance = PlayerData[player].bank_balance + JOB_WAGE
-                CallRemoteEvent(player, "MakeSuccessNotification", _("salary_notification", _("price_in_currency", tostring(JOB_WAGE))))
-            else
+            elseif PlayerData[player].job == "mechanic" then
+                PlayerData[player].bank_balance = PlayerData[player].bank_balance + MECHANIC_WAGE
+                CallRemoteEvent(player, "MakeSuccessNotification", _("salary_notification", _("price_in_currency", tostring(POLICE_WAGE))))
+            elseif PlayerData[player].job == "" then
                 PlayerData[player].bank_balance = PlayerData[player].bank_balance + MINIMUM_WAGE
                 CallRemoteEvent(player, "MakeSuccessNotification", _("salary_notification", _("price_in_currency", tostring(MINIMUM_WAGE))))
             end

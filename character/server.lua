@@ -5,12 +5,20 @@ shirtsModel = {
     knitted_shirt_2 = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_TShirt_Knitted2_LPR",
     knitted_shirt_1 = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_TShirt_Knitted_LPR",
     tshirt = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_TShirt_LPR",
+    shirt_2 = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Knitted_Shirt_LPR",
+    shirt_4 = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_FormalShirt_LPR",
+    shirt_5 = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_FormalShirt2_LPR",
+    shirt_8 = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_TShirt_Knitted_LPR",
+    shirt_9 = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_TShirt_LPR",
+    shirt_10 = "/Game/CharacterModels/Clothing/Meshes/SK_TShirt01",
+    shirt_13 = "/Game/CharacterModels/Clothing/Meshes/SK_Pullover",
 }
 
 pantsModel = {
     cargo_pants = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_CargoPants_LPR",
     denim_pants = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_DenimPants_LPR",
-    formal_pants = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_FormalPants_LPR"
+    formal_pants = "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_FormalPants_LPR",
+    pant_4 = "/Game/CharacterModels/Clothing/Meshes/SK_Jeans01"
 }
 
 shoesModel = {
@@ -23,7 +31,28 @@ hairsModel = {
     hairs_scientist = "/Game/CharacterModels/SkeletalMesh/HZN_CH3D_Hair_Scientist_LP",
     hairs_1 = "/Game/CharacterModels/SkeletalMesh/HZN_CH3D_Normal_Hair_01_LPR",
     hairs_3 = "/Game/CharacterModels/SkeletalMesh/HZN_CH3D_Normal_Hair_03_LPR",
-    hairs_2 = "/Game/CharacterModels/SkeletalMesh/HZN_CH3D_Normal_Hair_02_LPR"
+    hairs_2 = "/Game/CharacterModels/SkeletalMesh/HZN_CH3D_Normal_Hair_02_LPR",
+    hair_7 = "/Game/CharacterModels/SkeletalMesh/SK_Hair01",
+    hair_8 = "/Game/CharacterModels/SkeletalMesh/SK_Hair02",
+    hair_9 = "/Game/CharacterModels/SkeletalMesh/SK_Hair03",
+    hair_10 = "/Game/CharacterModels/SkeletalMesh/SK_Hair04",
+    hair_11 = "/Game/CharacterModels/SkeletalMesh/SK_Hair05",
+    hair_12 = "/Game/CharacterModels/SkeletalMesh/SK_Hair06",
+    hair_13 = "/Game/CharacterModels/SkeletalMesh/SK_Hair07",
+    hair_14 = "/Game/CharacterModels/SkeletalMesh/SK_Hair08",
+    hair_15 = "/Game/CharacterModels/SkeletalMesh/SK_Hair09",
+    hair_16 = "/Game/CharacterModels/SkeletalMesh/SK_Hair10",
+    hair_17 = "/Game/CharacterModels/SkeletalMesh/SK_Hair11",
+    hair_18 = "/Game/CharacterModels/SkeletalMesh/SK_Hair12",
+    hair_19 = "/Game/CharacterModels/SkeletalMesh/SK_Hair13",
+    hair_20 = "/Game/CharacterModels/SkeletalMesh/SK_Hair14",
+    hair_21 = "/Game/CharacterModels/SkeletalMesh/SK_Hair15",
+    hair_22 = "/Game/CharacterModels/SkeletalMesh/SK_Hair16",
+    hair_23 = "/Game/CharacterModels/SkeletalMesh/SK_Hair17",
+    hair_24 = "/Game/CharacterModels/SkeletalMesh/SK_Hair18",
+    hair_25 = "/Game/CharacterModels/Female/Meshes/SK_Hair01",
+    hair_26 = "/Game/CharacterModels/Female/Meshes/SK_Hair02",
+    hair_27 = "/Game/CharacterModels/Female/Meshes/SK_Hair03"
 }
 
 hairsColor = {
@@ -154,6 +183,18 @@ function UpdateClothes(player)
             CallRemoteEvent(v, "ClientChangeClothing", player, 4, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_FormalPants_LPR", 0, 0, 0, 0)
             CallRemoteEvent(v, "ClientChangeClothing", player, 5, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_BusinessShoes_LPR", 0, 0, 0, 0)
         end
+    elseif PlayerData[player].job == "mechanic" then
+        CallRemoteEvent(player, "ClientChangeClothing", player, 0, hairsModel[PlayerData[player].clothing[1]], playerhairscolor[1], playerhairscolor[2], playerhairscolor[3], playerhairscolor[4])
+        CallRemoteEvent(player, "ClientChangeClothing", player, 1, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_TShirt_Knitted2_LPR", 0, 0, 0, 0)
+        CallRemoteEvent(player, "ClientChangeClothing", player, 4, "/Game/CharacterModels/Clothing/Meshes/SK_Jeans01", 0, 0, 0, 0)
+        CallRemoteEvent(player, "ClientChangeClothing", player, 5, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_BusinessShoes_LPR", 0, 0, 0, 0)
+        
+        for k, v in pairs(GetStreamedPlayersForPlayer(player)) do
+            CallRemoteEvent(v, "ClientChangeClothing", player, 0, hairsModel[PlayerData[player].clothing[1]], playerhairscolor[1], playerhairscolor[2], playerhairscolor[3], playerhairscolor[4])
+            CallRemoteEvent(v, "ClientChangeClothing", player, 1, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_TShirt_Knitted2_LPR", 0, 0, 0, 0)
+            CallRemoteEvent(v, "ClientChangeClothing", player, 4, "/Game/CharacterModels/Clothing/Meshes/SK_Jeans01", 0, 0, 0, 0)
+            CallRemoteEvent(v, "ClientChangeClothing", player, 5, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_BusinessShoes_LPR", 0, 0, 0, 0)
+        end
     elseif PlayerData[player].job == "police" then
         CallRemoteEvent(player, "ClientChangeClothing", player, 0, hairsModel[PlayerData[player].clothing[1]], playerhairscolor[1], playerhairscolor[2], playerhairscolor[3], playerhairscolor[4])
         CallRemoteEvent(player, "ClientChangeClothing", player, 1, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Police_Shirt-Short_LPR", 0, 0, 0, 0)
@@ -166,17 +207,45 @@ function UpdateClothes(player)
             CallRemoteEvent(v, "ClientChangeClothing", player, 4, "/Game/CharacterModels/Clothing/Meshes/SK_Jeans01", 0, 0, 0, 0)
             CallRemoteEvent(v, "ClientChangeClothing", player, 5, "/Game/CharacterModels/SkeletalMesh/Outfits/HZN_Outfit_Piece_BusinessShoes_LPR", 0, 0, 0, 0)
         end
+    elseif PlayerData[player].job == "militaire" then
+
+        local nbr = math.random(1,4)
+
+        AddPlayerChat(player, "Nbr:"..nbr)
+
+        CallRemoteEvent(player, "ClientChangeClothing", player, 0, hairsModel[PlayerData[player].clothing[1]], playerhairscolor[1], playerhairscolor[2], playerhairscolor[3], playerhairscolor[4])
+        CallRemoteEvent(player, "ClientChangeClothing", player, 4, "", 0, 0, 0, 0)
+        CallRemoteEvent(player, "ClientChangeClothing", player, 6, "noLegs", 0, 0, 0, 0)
+        CallRemoteEvent(player, "ClientChangeClothing", player, 7, "/Game/CharacterModels/Military/Meshes/SK_SpecialForces02", 0, 0, 0, 0)
+
+        for k, v in pairs(GetStreamedPlayersForPlayer(player)) do
+            CallRemoteEvent(player, "ClientChangeClothing", player, 0, hairsModel[PlayerData[player].clothing[1]], playerhairscolor[1], playerhairscolor[2], playerhairscolor[3], playerhairscolor[4])
+            CallRemoteEvent(v, "ClientChangeClothing", player, 4, "", 0, 0, 0, 0)
+            CallRemoteEvent(v, "ClientChangeClothing", player, 6, "noLegs", 0, 0, 0, 0)
+
+            if nbr == 1 then
+                CallRemoteEvent(v, "ClientChangeClothing", player, 7, "/Game/CharacterModels/Military/Meshes/SK_SpecialForces01", 0, 0, 0, 0)
+            elseif nbr == 2 then
+                CallRemoteEvent(v, "ClientChangeClothing", player, 7, "/Game/CharacterModels/Military/Meshes/SK_SpecialForces02", 0, 0, 0, 0)
+            elseif nbr == 3 then
+                CallRemoteEvent(v, "ClientChangeClothing", player, 7, "/Game/CharacterModels/Military/Meshes/SK_SpecialForces03", 0, 0, 0, 0)
+            else
+                CallRemoteEvent(v, "ClientChangeClothing", player, 7, "/Game/CharacterModels/Military/Meshes/SK_SpecialForces04", 0, 0, 0, 0)
+            end
+        end
     else
         CallRemoteEvent(player, "ClientChangeClothing", player, 0, hairsModel[PlayerData[player].clothing[1]], playerhairscolor[1], playerhairscolor[2], playerhairscolor[3], playerhairscolor[4])
         CallRemoteEvent(player, "ClientChangeClothing", player, 1, shirtsModel[PlayerData[player].clothing[3]], 0, 0, 0, 0)
         CallRemoteEvent(player, "ClientChangeClothing", player, 4, pantsModel[PlayerData[player].clothing[4]], 0, 0, 0, 0)
         CallRemoteEvent(player, "ClientChangeClothing", player, 5, shoesModel[PlayerData[player].clothing[5]], 0, 0, 0, 0)
+        CallRemoteEvent(player, "ClientChangeClothing", player, 7, "/Game/CharacterModels/SkeletalMesh/BodyMerged/HZN_CH3D_Normal01_LPR", 0, 0, 0, 0)
         
         for k, v in pairs(GetStreamedPlayersForPlayer(player)) do
             CallRemoteEvent(v, "ClientChangeClothing", player, 0, hairsModel[PlayerData[player].clothing[1]], playerhairscolor[1], playerhairscolor[2], playerhairscolor[3], playerhairscolor[4])
             CallRemoteEvent(v, "ClientChangeClothing", player, 1, shirtsModel[PlayerData[player].clothing[3]], 0, 0, 0, 0)
             CallRemoteEvent(v, "ClientChangeClothing", player, 4, pantsModel[PlayerData[player].clothing[4]], 0, 0, 0, 0)
             CallRemoteEvent(v, "ClientChangeClothing", player, 5, shoesModel[PlayerData[player].clothing[5]], 0, 0, 0, 0)
+            CallRemoteEvent(v, "ClientChangeClothing", player, 7, "/Game/CharacterModels/SkeletalMesh/BodyMerged/HZN_CH3D_Normal01_LPR", 0, 0, 0, 0)
         end
     end
 end

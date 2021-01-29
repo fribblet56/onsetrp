@@ -521,7 +521,6 @@ AddEvent("OnPackageStart", function()
     CreateDoor(6, 196420.000000, 209899.000000, 1210.000000, 0.0, false) 	-- Barrier ext
     CreateDoor(6, 188231.000000, 206266.000000, 1203.000000, 90.0, false) 	-- Barrier ext
     CreateDoor(6, 195718.000000, 209899.000000, 1209.000000, 180.0, false)	-- Barrier ext
-    CreateDoor(19, 194822.000000, 205925.000000, 1225.000000, -90.0, false)	-- GarageDoor
     CreateDoor(17, 190841.000000, 207407.000000, 1224.000000, 180.0, true)	-- HalLDoor
     CreateDoor(39, 191738.000000, 207293.000000, 2322.000000, 90.0, true) 	-- ChefOffice
     CreateDoor(39, 192700.000000, 207710.000000, 2322.000000, -90.0, true)	-- Armurie

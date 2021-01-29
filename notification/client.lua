@@ -21,14 +21,14 @@ end
 AddRemoteEvent("MakeNotification", MakeNotification)
 
 function MakeSuccessNotification(text)
-    ExecuteWebJS(NotificationHud, 'makeNotification("' ..text.. '", "linear-gradient(to right, #00b09b, #96c93d)")')
+    ExecuteWebJS(NotificationHud, 'makeNotification("' ..text.. '", "#1ABC9C")')
     -- PlayAudioFile("notification.mp3")
 end
 AddRemoteEvent("MakeSuccessNotification", MakeSuccessNotification)
 
 function MakeErrorNotification(text, duration)
     if duration == nil then duration = 3000 end
-    ExecuteWebJS(NotificationHud, 'makeNotification("' ..text.. '", "linear-gradient(to right, #ff5f6d, #ffc371)", '..duration..')')
+    ExecuteWebJS(NotificationHud, 'makeNotification("' ..text.. '", "#E74C3C", '..duration..')')
     -- PlayAudioFile("notification.mp3")
 end
 AddRemoteEvent("MakeErrorNotification", MakeErrorNotification)

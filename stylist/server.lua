@@ -2,11 +2,11 @@ local _ = function(k,...) return ImportPackage("i18n").t(GetPackageName(),k,...)
 
 StylistNPCObjectsCached = { }
 StylistNPCTable = { }
--- StylistNPCTable = {
+--StylistNPCTable = {
 -- 	{
--- 		location = { 180845, 182506, 1290, 180}
+-- 		location = { 191019, 199167, 1309, -18}
 -- 	}
--- }
+--}
 
 PLAYER_SPAWN_POINT = { x = 204094, y = 180846, z = 1500 }
 
@@ -103,7 +103,7 @@ AddRemoteEvent("ModifyEvent", function(player, hairsChoice, shirtsChoice, pantsC
     end
 
 	UpdateClothes(player)
-	SetPlayerLocation(player, PLAYER_SPAWN_POINT.x, PLAYER_SPAWN_POINT.y, PLAYER_SPAWN_POINT.z)
+	CallRemoteEvent(player, "trailer:start")
 	SetPlayerName(player,PlayerData[player].accountid)
 	SavePlayerAccount(player)
 end)

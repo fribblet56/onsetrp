@@ -89,8 +89,10 @@ AddRemoteEvent("shopInteract", function(player, shopNpc)
         local dist = GetDistance3D(x, y, z, x2, y2, z2)
 
         if dist < 250 then
-            if shop.category == "weapons" and PlayerData[player].gun_license == 0 then
-                CallRemoteEvent(player, "MakeNotification", _("no_gun_license"), "linear-gradient(to right, #ff5f6d, #ffc371)")
+            if shop.category == "legal-weapons" and PlayerData[player].gun_license == 0 then
+                CallRemoteEvent(player, "MakeErrorNotification", _("no_gun_license"), "linear-gradient(to right, #ff5f6d, #ffc371)")
+            elseif shop.category == "weapons" and PlayerData[player].rebel_gun_license == 0 then
+                CallRemoteEvent(player, "MakeErrorNotification", _("no_license_rebel"), "linear-gradient(to right, #ff5f6d, #ffc371)")
             else
                 CallRemoteEvent(player, "openShop", PlayerData[player].inventory, shop.items, shop.npc)
             end
@@ -142,17 +144,35 @@ end)
 
 AddRemoteEvent("ShopSell", function(player, shopid, item, amount) 
     local itemName = item.name
-    local itemPrice = item.price * amount * 0.25
+    local itemPrice
 
-    if itemPrice == 0 then
+    if itemName == "weapon_4" or itemName == "weapon_19" or itemName == "weapon_21" or itemName == "handcuffs" then
         return
     end
 
+    if itemName == "herring" then
+        itemPrice = item.price * amount
+    elseif itemName == "weed" then
+        itemPrice = item.price * amount
+    elseif itemName == "cannabis_oil" then
+        itemPrice = item.price * amount
+    elseif itemName == "diamond_bleu" then
+        itemPrice = item.price * amount
+    elseif itemName == "diamond_red" then
+        itemPrice = item.price * amount
+    elseif itemName == "diamond_yellow" then
+        itemPrice = item.price * amount
+    elseif itemName == "cocaine" then
+        itemPrice = item.price * amount
+    else
+        itemPrice = item.price * amount * 0.25
+    end
+
     if tonumber(PlayerData[player].inventory[itemName]) < tonumber(amount) then
-        CallRemoteEvent(player, "MakeNotification", _("not_enough_item"), "linear-gradient(to right, #ff5f6d, #ffc371)")
+        CallRemoteEvent(player, "MakeNotification", _("not_enough_item"), "#EC7063")
     else
         AddPlayerCash(player, math.ceil(itemPrice))
-        CallRemoteEvent(player, "MakeNotification", _("shop_success_sell", tostring(amount), _(itemName), _("price_in_currency", itemPrice)), "linear-gradient(to right, #00b09b, #96c93d)")
+        CallRemoteEvent(player, "MakeNotification", _("shop_success_sell", tostring(amount), _(itemName), _("price_in_currency", itemPrice)), "#85C1E9")
         RemoveInventory(player, itemName, amount)
     end
 end)

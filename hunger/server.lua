@@ -43,6 +43,11 @@ function removePlayerHunger(player, hunger)
         PlayerData[player].hunger = 0
     end
 
+    if PlayerData[player].hunger == 10 then
+        SetPlayerAnimation(player, "PUSHUP_END")
+        CallRemoteEvent(player, "MakeErrorNotification", "Votre faim est critique !")
+    end
+
     -- Remove health to player if hunger is 0
     if  PlayerData[player].hunger == 0 then
         health = GetPlayerHealth(player) - 5
@@ -96,6 +101,11 @@ function removePlayerThirst(player, thirst)
     -- Check if the thirst is not 0
     if PlayerData[player].thirst ~= 0 then
         PlayerData[player].thirst = PlayerData[player].thirst - thirst
+    end
+
+    if PlayerData[player].thirst == 10 then
+        SetPlayerAnimation(player, "PUSHUP_END")
+        CallRemoteEvent(player, "MakeErrorNotification", "Votre soif est critique !")
     end
 
     -- Set thirst to 0 if it's lower then 0

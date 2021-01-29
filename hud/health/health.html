@@ -99,31 +99,8 @@
             if (healthlife >= 0 && healthlife <= 10)
                 pourcentageElt.style.color = "#ff1100";
 
-            if (menuIsOpen == 1) { // Si le menu perso est ouvert, on affiche quoi qu'il arrive
-                healthElt.style.opacity = "1";
-                pourcentageElt.style.opacity = "0.9";
-            } else { // Sinon, on applique la règle de base
-                if (healthlife > 50 && healthlife <= 100) {
-                    healthElt.style.opacity = "0.0";
-                    pourcentageElt.style.opacity = "0.0";
-                }
-                if (healthlife > 40 && healthlife <= 50) {
-                    healthElt.style.opacity = "0.4";
-                    pourcentageElt.style.opacity = "0.9";
-                }
-                if (healthlife > 20 && healthlife <= 40) {
-                    healthElt.style.opacity = "0.6";
-                    pourcentageElt.style.opacity = "0.9";
-                }
-                if (healthlife > 10 && healthlife <= 20) {
-                    healthElt.style.opacity = "0.8";
-                    pourcentageElt.style.opacity = "0.9";
-                }
-                if (healthlife >= 0 && healthlife <= 10) {
-                    healthElt.style.opacity = "1";
-                    pourcentageElt.style.opacity = "0.9";
-                }
-            }
+            healthElt.style.opacity = "1";
+            pourcentageElt.style.opacity = "0.9";
         }
 
     </script>

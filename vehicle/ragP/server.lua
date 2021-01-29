@@ -16,8 +16,12 @@
     local ragTime = math.floor((currentspeed/2)*random)*1000
     Delay(100, function ()
         SetPlayerRagdoll(player,true)
+        SetPlayerBusy(player)
         CallRemoteEvent(player, "LockControlMove", true)
+        CallRemoteEvent(player, "rag:InputModGui")
         Delay(ragTime,function()
+            CallRemoteEvent(player, "rag:InputModGame")
+            SetPlayerNotBusy(player)
             SetPlayerRagdoll(player,false)
             CallRemoteEvent(player, "LockControlMove", false)
             SetPlayerAnimation(player, S_animation)

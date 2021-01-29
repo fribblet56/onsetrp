@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../garage/gui/bootstrap/css/bootstrap.min.css">
+	<meta charset="utf-8">
+</head>
+<body style="text-align:center; background-color: rgba(0,0,0,0);">
+
+<link href="all.min.css" rel="stylesheet"> <!--load all styles -->
+
+<style type="text/css">
+    @font-face {
+      font-family: "police";
+      src: url("police.ttf");
+    }
+
+	.button {
+	  border: none;
+	  color: white;
+	  display: inline-block;
+	  font-size: 16px;
+	  transition-duration: 0.4s;
+	  cursor: pointer;
+	  border-radius: 2px;
+	}
+
+	.button1 {
+	  background-color: #E74C3C; 
+	  color: white; 
+	}
+
+	.button1:hover {
+	  background-color: #EC7063;
+	  color: white;
+	}
+
+</style>
+
+	<script src="index.js"></script>
+
+	<div class="container-fluid">
+		<div class="row justify-content-center">
+			<div class="col-8" style="border-radius: 8px; margin-top: 3%; background-color: #FDFEFE; border: 2px solid #F2F3F4">
+				<div class="row justify-content-center">
+					<div class="card col-3" style="width: 18rem;">
+					  <div class="card-body">
+					  	<img src="diamond.svg" class="card-img-top w-50">
+					  	<hr class="my-2">
+					    <h5 class="card-title">Diamantaire</h5>
+					    <p class="card-text">Récoltez vos pierres à la mine, à la force de vos bras, puis dissolvez les dans un bain d’acide sulfurique, afin de voir si votre récolte a été fructueuse.</p>
+					    <button onclick="gpsJob()" class="btn btn-primary">Je suis intéressé par ce poste.</button>
+					  </div>
+					</div>
+					<div class="card col-3" style="width: 18rem;">
+					  <div class="card-body">
+					  	<img src="taxi.svg" class="card-img-top w-50">
+					  	<hr class="my-2">
+					    <h5 class="card-title">Taxi-Bus</h5>
+					    <p class="card-text">Faites le tour de la ville en suivant un circuit afin de prendre en charge des gens.</p><br><br>
+					    <button onclick="gpsJob()" class="btn btn-primary">Je suis intéressé par ce poste.</button>
+					  </div>
+					</div>
+					<div class="card col-3" style="width: 18rem;">
+					  <div class="card-body">
+					  	<img src="oil.svg" class="card-img-top w-50">
+					  	<hr class="my-2">
+					    <h5 class="card-title">Raffineur de Pétrole</h5>
+					    <p class="card-text">Récoltez au site pétrolier du pétrole brute afin de le raffiner pour qu'il soit livré dans les stations de service.</p>
+					    <br>
+					    <button onclick="gpsJob()" class="btn btn-primary">Je suis intéressé par ce poste.</button>
+					  </div>
+					</div>
+					<div class="card col-3" style="width: 18rem;">
+					  <div class="card-body">
+					  	<img src="electric-pole.svg" class="card-img-top w-50">
+					  	<hr class="my-2">
+					    <h5 class="card-title">Électricien</h5>
+					    <p class="card-text">Le réseau électrique de la ville n'étant plus tout jeune, il lui faut des assistants pour qui le maintienne en état de marche constant.</p>
+					    <br>
+					    <button onclick="gpsJob()" class="btn btn-primary">Je suis intéressé par ce poste.</button>
+					  </div>
+					</div>
+				</div>
+				<div class="row justify-content-center">
+					<div class="card col-3" style="width: 18rem;">
+					  <div class="card-body m-auto">
+					  	<img src="transport.svg" class="card-img-top w-50">
+					  	<hr class="my-2">
+					    <h5 class="card-title">Livreur de carburant</h5>
+					    <p class="card-text">Livrée l'essence dans les sation de service.</p>
+					    <br><br><br><br><br>
+					    <button onclick="gpsJob()" class="btn btn-primary">Je suis intéressé par ce poste.</button>
+					  </div>
+					</div>
+					<div class="card col-3" style="width: 18rem;">
+					  <div class="card-body">
+					  	<img src="cop.svg" class="card-img-top w-50">
+					  	<hr class="my-2">
+					    <h5 class="card-title">Policier</h5>
+					    <p class="card-text">Maintenant l'ordre dans cette ville débordante de malfrats, venez en aide aux citoyens grâce à votre hélicoptère pour que personne ne trouve la mort dans le désert à cause d'une simple fuite d'huile. [Whitelist]</p>
+					    <button onclick="gpsJob()" class="btn btn-danger">Je suis intéressé par ce poste.</button>
+					  </div>
+					</div>
+					<div class="card col-3" style="width: 18rem;">
+					  <div class="card-body">
+					  	<img src="fix.svg" class="card-img-top w-50">
+					  	<hr class="my-2">
+					    <h5 class="card-title">Dépanneur</h5>
+					    <p class="card-text">Venez en aide a nos citoyen grace a votre Helicopter pour que personne ne soit retrouver mort dans le desert a cause d'un simple fuite d'huile [Whitelist]</p>
+					    <br><br>
+					    <button onclick="gpsJob()" class="btn btn-danger">Je suis intéressé par ce poste.</button>
+					  </div>
+					</div>
+					<div class="card col-3" style="width: 18rem;">
+					  <div class="card-body">
+					  	<img src="doctor.svg" class="card-img-top w-50">
+					  	<hr class="my-2">
+					    <h5 class="card-title">Médecin</h5>
+					    <p class="card-text">Meter a contribution vos connaisance en médecine pour sauver d'imbrable vie [Whitelist]</p>
+					    <br><br><br><br>
+					    <button onclick="gpsJob()" class="btn btn-danger">Je suis intéressé par ce poste.</button>
+					  </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

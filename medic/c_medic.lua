@@ -5,11 +5,13 @@ local IsOnDuty = false
 
 local medicMenu
 local medicNpcGarageMenu
+local medicNpcHelicoMenu
 local medicEquipmentMenu
 local medicCalloutMenu
 
 local medicNpcIds = {}
 local medicVehicleNpcIds = {}
+local medicHelicoNpcIds = {}
 local medicGarageIds = {}
 local medicEquipmentNpcIds = {}
 local medicHospitalLocationIds = {}
@@ -17,9 +19,10 @@ local medicHospitalLocationIds = {}
 local reviveScreenHUD
 local isReviveScreen = false
 
-AddRemoteEvent("medic:setup", function(_medicNpcIds, _medicVehicleNpcIds, _medicGarageIds, _medicEquipmentNpcIds, _medicHospitalLocationIds)
+AddRemoteEvent("medic:setup", function(_medicNpcIds, _medicVehicleNpcIds, _medicHelicoNpcIds,_medicGarageIds, _medicEquipmentNpcIds, _medicHospitalLocationIds)
     medicNpcIds = _medicNpcIds
     medicVehicleNpcIds = _medicVehicleNpcIds
+    medicHelicoNpcIds = _medicHelicoNpcIds
     medicGarageIds = _medicGarageIds
     medicEquipmentNpcIds = _medicEquipmentNpcIds
     medicHospitalLocationIds = _medicHospitalLocationIds
@@ -34,8 +37,11 @@ AddEvent("OnTranslationReady", function()
         -- MEDIC MENU : Gros soins, Mettre / sortir d'un véhicle, end callout
         medicMenu = Dialog.create(_("medic_menu"), nil, _("medic_menu_true_heal"), _("medic_menu_revive"), _("medic_menu_put_player_in_vehicle"), _("medic_menu_remove_player_from_vehicle"), _("callouts"), _("callouts_menu_end_callout"), _("cancel"))
         
-        -- MEDIC NPC GARAGE MENU
+        -- MEDIC NPC GARAGE MENU CAR
         medicNpcGarageMenu = Dialog.create(_("medic_garage_menu"), nil, _("medic_garage_menu_spawn_ambulance"), _("cancel"))
+
+         -- MEDIC NPC GARAGE MENU HELICO
+        medicNpcHelicoMenu = Dialog.create(_("medic_garage_menu"), nil, "Utiliser l'hélicoptère.", _("cancel"))
         
         -- MEDIC EQUIPMENT MENU
         medicEquipmentMenu = Dialog.create(_("medic_equipment_menu"), nil, _("medic_equipment_menu_check_equipment"), _("cancel"))
@@ -49,6 +55,10 @@ AddEvent("OnKeyPress", function(key)
         
         if key == INTERACT_KEY and not GetPlayerBusy() and IsOnDuty and IsNearbyNpc(GetPlayerId(), medicVehicleNpcIds) ~= false then
             Dialog.show(medicNpcGarageMenu)
+        end
+
+        if key == INTERACT_KEY and not GetPlayerBusy() and IsOnDuty and IsNearbyNpc(GetPlayerId(), medicHelicoNpcIds) ~= false then
+            Dialog.show(medicNpcHelicoMenu)
         end
         
         if key == INTERACT_KEY and not GetPlayerBusy() and IsOnDuty and IsNearbyNpc(GetPlayerId(), medicEquipmentNpcIds) ~= false then
@@ -96,6 +106,12 @@ AddEvent("OnDialogSubmit", function(dialog, button, ...)
     if dialog == medicNpcGarageMenu then
         if button == 1 then
             CallRemoteEvent("medic:spawnvehicle")
+        end
+    end
+
+    if dialog == medicNpcHelicoMenu then
+        if button == 1 then
+            CallRemoteEvent("medic:spawnhelico")
         end
     end
     

@@ -1,6 +1,5 @@
 local _ = function(k, ...) return ImportPackage("i18n").t(GetPackageName(), k, ...) end
 local npcTable = {
-    { x = -20242, y = -16094, z = 2063, h = -90 }
 }
 
 local npcTableCached = {}

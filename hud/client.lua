@@ -48,13 +48,13 @@ function OnPackageStart()
     -- SetWebVisibility( SpeakingHud, WEB_HITINVISIBLE )
     
 	ShowHealthHUD(false)
-    ShowWeaponHUD(false)
+    ShowWeaponHUD(true)
 end
 AddEvent("OnPackageStart", OnPackageStart)
 
 function updateHud()
     local pHealth = GetPlayerHealth()
-    local pArmor = GetPlayerArmor()
+    local pArmor = GetPlayerArmor() or 0
     local pHunger = GetPlayerPropertyValue(GetPlayerId(), "hunger")
     local pThirst = GetPlayerPropertyValue(GetPlayerId(), "thirst")
     if HealthHud ~= nil and pHealth ~= nil then ExecuteWebJS(HealthHud, "SetHealth("..pHealth..", "..personalMenuIsOpen..");") end -- Fix robustesse

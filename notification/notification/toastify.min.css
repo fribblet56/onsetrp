@@ -14,8 +14,13 @@
  * Copyright (C) 2018 Varun A P
  */
 
+@font-face {
+    font-family: "Bubbleboddy";
+    src: url("notification-font.ttf");
+}
+
 .toastify {
-    padding: 12px 20px;
+    padding: 12px 60px;
     color: #fff;
     display: inline-block;
     box-shadow: 0 3px 6px -1px rgba(0, 0, 0, .12), 0 10px 36px -4px rgba(77, 96, 232, .3);
@@ -24,11 +29,13 @@
     position: fixed;
     opacity: 0;
     transition: all .4s cubic-bezier(.215, .61, .355, 1);
-    border-radius: 2px;
+    border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
     max-width: calc(50% - 20px);
-    z-index: 2147483647
+    z-index: 2147483647;
+    font-size: 20px;
+    font-family: "Bubbleboddy";
 }
 
 .toastify.on {
@@ -53,7 +60,11 @@
 }
 
 .toastify-bottom {
-    bottom: -150px
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    max-width: fit-content
 }
 
 .toastify-rounded {
@@ -68,11 +79,7 @@
 }
 
 .toastify-center {
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-    max-width: fit-content
+
 }
 
 @media only screen and (max-width:360px) {

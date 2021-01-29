@@ -36,7 +36,7 @@ local deliveryPoint = {
 local LOCATION_PRICE = 2000
 local LOCATION_REFUND_PERCENTAGE = 0.8
 
-local PRICE_DIVIDER = 250
+local PRICE_DIVIDER = 450
 local PRICE_PER_DIVIDE = 15
 
 local deliveryNpcCached = {}
@@ -189,10 +189,12 @@ AddRemoteEvent("FinishDelivery", function(player)
             CallRemoteEvent(player, "MakeErrorNotification", _("delivery_need_delivery_truck"))
             return
         end
+
+        cashgen = math.random (320, 430)
         
-        CallRemoteEvent(player, "MakeNotification", _("finished_delivery", math.ceil(delivery[2]) or PRICE_PER_DIVIDE, _("currency")), "linear-gradient(to right, #00b09b, #96c93d)")
+        CallRemoteEvent(player, "MakeNotification", _("finished_delivery", cashgen, _("currency")), "linear-gradient(to right, #00b09b, #96c93d)")
         
-        AddPlayerCash(player, math.ceil(delivery[2]) or PRICE_PER_DIVIDE)
+        AddPlayerCash(player, cashgen)
         playerDelivery[player] = nil
         CallRemoteEvent(player, "ClientDestroyCurrentWaypoint")
     else

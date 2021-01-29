@@ -3,44 +3,44 @@ local _ = function(k,...) return ImportPackage("i18n").t(GetPackageName(),k,...)
 VehicleData = {}
 
 VehicleTrunkSlots = { -- slots for vehicles
-    vehicle_1 = 205,
-    vehicle_2 = 50,
+    vehicle_1 = 80,
+    vehicle_2 = 80,
     vehicle_3 = 80,
-    vehicle_4 = 215,
-    vehicle_5 = 205,
-    vehicle_6 = 90,
-    vehicle_7 = 315,
-    vehicle_8 = 50,
-    vehicle_9 = 10,
-    vehicle_10 = 10,
-    vehicle_11 = 140,
+    vehicle_4 = 125,
+    vehicle_5 = 125,
+    vehicle_6 = 40,
+    vehicle_7 = 250,
+    vehicle_8 = 100,
+    vehicle_9 = 100,
+    vehicle_10 = 40,
+    vehicle_11 = 60,
     vehicle_12 = 100,
-    vehicle_13 = 100,
-    vehicle_14 = 100,
-    vehicle_15 = 100,
-    vehicle_16 = 100,
-    vehicle_17 = 540,
-    vehicle_18 = 540,
-    vehicle_19 = 205,
-    vehicle_20 = 10,
+    vehicle_13 = 80,
+    vehicle_14 = 80,
+    vehicle_15 = 80,
+    vehicle_16 = 80,
+    vehicle_17 = 450,
+    vehicle_18 = 450,
+    vehicle_19 = 80,
+    vehicle_20 = 40,
     vehicle_21 = 100,
-    vehicle_22 = 475,
-    vehicle_23 = 475,
+    vehicle_22 = 200,
+    vehicle_23 = 200,
     vehicle_24 = 10,
-    vehicle_25 = 160
+    vehicle_25 = 40,
+    vehicle_26 = 20
 }
 
-function CreateVehicleData(player, vehicle, modelid, fuel, health, licensePlate)
+function CreateVehicleData(player, vehicle, modelid, fuel, health, licensePlate, nitro)
     VehicleData[vehicle] = {}
-
-    local fuel = fuel or 100
 
     VehicleData[vehicle].garageid = 0
     VehicleData[vehicle].owner = PlayerData[player].accountid
     VehicleData[vehicle].modelid = modelid
     VehicleData[vehicle].inventory = {}
     VehicleData[vehicle].keys = {}
-    VehicleData[vehicle].fuel = fuel
+    VehicleData[vehicle].nitro = nitro or 0
+    VehicleData[vehicle].fuel = fuel or 100
     VehicleData[vehicle].health = health or 5000
     VehicleData[vehicle].license_plate = licensePlate or 'AA-111-AA'
 
@@ -56,63 +56,6 @@ function OnPackageStart()
         end
     end, 30000)
     
-    CreateTimer(function()
-        local vehicleToDelete = {}
-        for k,v in pairs(GetAllVehicles()) do
-            local hasOwner = false
-            for w,z in pairs(GetAllPlayers()) do
-                if VehicleData[v] == nil then
-                    hasOwner = true
-                    break
-                end
-                if PlayerData[z] == nil then
-                    goto continue
-                end
-                if PlayerData[z].accountid == 0 or PlayerData[z].accountid == nil then
-                    goto continue
-                end
-                if VehicleData[v].owner == PlayerData[z].accountid then
-                    hasOwner = true
-                    break
-                end
-                ::continue::
-            end
-            if not hasOwner then
-                table.insert(vehicleToDelete, v)
-            end
-        end
-        for k,v in pairs(vehicleToDelete) do
-            local hasOwner = false
-            for w,z in pairs(GetAllPlayers()) do
-                if VehicleData[v] == nil then
-                    hasOwner = true
-                    break
-                end
-		if PlayerData[z] == nil then
-                    goto continue
-                end
-                if PlayerData[z].accountid == 0 or PlayerData[z].accountid == nil then
-                    goto continue
-                end
-                if VehicleData[v].owner == PlayerData[z].accountid then
-                    hasOwner = true
-                    break
-                end
-		::continue::
-            end
-            if not hasOwner then
-                if VehicleData[v] ~= nil and VehicleData[v].garageid ~= 0 then
-                    local query = mariadb_prepare(sql, "UPDATE `player_garage` SET `garage`=1 WHERE `id` = ?;",
-                        VehicleData[v].garageid
-                    )
-                    mariadb_async_query(sql, query)
-                end
-                DestroyVehicleData(v)
-                DestroyVehicle(v)
-            end
-        end
-        print("All vehicle have been cleaned up !")
-    end, 900000)
 end
 AddEvent("OnPackageStart", OnPackageStart)
 
@@ -181,19 +124,17 @@ function unlockVehicle(player)
             end
             return
         else
-            for k,v in pairs(vehicle.keys) do
-                if v == PlayerData[player].accountid then
-                    if GetVehiclePropertyValue(nearestCar, "locked") then
-                        CallRemoteEvent(player, "MakeNotification", _("car_unlocked"), "linear-gradient(to right, #00b09b, #96c93d)")
-                        SetVehiclePropertyValue(nearestCar, "locked", false, true)
-                        CallRemoteEvent(player, "PlayAudioFile", "carUnlock.mp3")
-			LightAnim(nearestCar)
-                    else
-                        CallRemoteEvent(player, "MakeNotification", _("car_locked"), "linear-gradient(to right, #00b09b, #96c93d)")
-                        SetVehiclePropertyValue(nearestCar, "locked", true, true)
-                        CallRemoteEvent(player, "PlayAudioFile", "carLock.mp3")
-			LightAnim(nearestCar)
-                    end
+            if VehicleData[nearestCar].keys[player] == 1 then
+                if GetVehiclePropertyValue(nearestCar, "locked") then
+                    CallRemoteEvent(player, "MakeNotification", _("car_unlocked"), "linear-gradient(to right, #00b09b, #96c93d)")
+                    SetVehiclePropertyValue(nearestCar, "locked", false, true)
+                    CallRemoteEvent(player, "PlayAudioFile", "carUnlock.mp3")
+		            LightAnim(nearestCar)
+                else
+                    CallRemoteEvent(player, "MakeNotification", _("car_locked"), "linear-gradient(to right, #00b09b, #96c93d)")
+                    SetVehiclePropertyValue(nearestCar, "locked", true, true)
+                    CallRemoteEvent(player, "PlayAudioFile", "carLock.mp3")
+		            LightAnim(nearestCar)
                 end
             end
             return
@@ -242,15 +183,42 @@ AddRemoteEvent("OpenTrunk", function(player, vehicle)
 
     SetPlayerPropertyValue(player, "opened-trunk", vehicle, true)
 
-    CallRemoteEvent(player, "OpenPersonalMenu", Items, PlayerData[player].inventory, PlayerData[player].name, player, playersList, GetPlayerMaxSlots(player), friskedInventory)
+    CallRemoteEvent(player, "OpenPersonalMenu", Items , 11,  friskedInventory)
 end)
 
 AddRemoteEvent("VehicleKeys", function(player) 
     local vehicle = GetNearestCar(player)
-    if vehicle then
+    if vehicle ~= 0 then
         local keyslist = VehicleData[vehicle].keys
-        local playerlist = GetAllPlayers()
-        CallRemoteEvent(player, "OpenVehicleKeys", keyslist, playerlist)
+        local playersIds = GetAllPlayers()
+
+        local playersNames = {}
+        for k,v in pairs(playersIds) do
+            if PlayerData[k] == nil then
+                goto continue
+            end
+            if PlayerData[k].name == nil then
+                goto continue
+            end
+            playersNames[tostring(k)] = PlayerData[k].name
+            print("PlayerList:"..playersNames[tostring(k)])
+            ::continue::
+        end
+
+        local keys = {}
+        for k,v in pairs(keyslist) do
+            if PlayerData[k] == nil then
+                goto continue
+            end
+            if PlayerData[k].name == nil then
+                goto continue
+            end
+            keys[tostring(k)] = PlayerData[k].name
+            print("Key:"..keys[tostring(k)])
+            ::continue::
+        end
+
+        CallRemoteEvent(player, "OpenVehicleKeys", keys, playersNames)
     end
 end)
 
@@ -269,13 +237,21 @@ AddRemoteEvent("UnflipVehicle", function(player)
 end)
 
 AddRemoteEvent("VehicleGiveKey", function(player, toplayer)
+    print("player:"..player)
+    print("toPlayer:"..toplayer)
     local vehicle = GetNearestCar(player)
     local toplayer = tonumber(toplayer)
 
+    print("vehicle:"..vehicle)
+
     if VehicleData[vehicle].keys[player] == 1 then
+        print("1")
         if VehicleData[vehicle].keys[toplayer] == nil then
+            print("2")
             VehicleData[vehicle].keys[toplayer] = 1
+            print("3")
         else
+            print("4")
             CallRemoteEvent(player, "MakeNotification", _("already_have_key"), "linear-gradient(to right, #ff5f6d, #ffc371)")
         end
     end

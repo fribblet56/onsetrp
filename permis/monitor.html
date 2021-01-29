@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="../garage/gui/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+	<meta charset="utf-8">
+</head>
+<body style="text-align:center; background-color: rgba(0,0,0,0);">
+
+<style type="text/css">
+    @font-face {
+      font-family: "font";
+      src: url("../welcome/font.ttf");
+    }
+    .font{
+      font-family: "font", serif;
+      color: black;
+    }
+
+</style>
+
+	<script src="monitor.js"></script>
+
+	<div class="container-fluid">
+		<div class="row justify-content-end">
+			<div class="jumbotron jumbotron-fluid col-2" style="border-radius: 8px; margin-top: 20%; background-color: #FDFEFE; border: 2px solid #F2F3F4">
+				<label class="font" style="font-size: 60px;">Limitation</label>
+			<div class="container">
+				<div class="row align-items-end" style="margin-left: 30%">
+					<label style="font-size: 80px; color: #EC7063" id="Kmh">65</label>
+					<label class="font" style="font-size: 30px;">km/h</label>
+			    </div>
+			    <hr class="my-1">
+			    <div class="row" style="margin-left: 5%">
+			    	<label class="font" style="font-size: 30px; margin-top: 4px">Point restant:</label>
+					<label style="font-size: 30px;" id="Point"> 5</label>
+			    </div>
+			    <div class="row" style="margin-left: 5%;">
+			    	<label class="font" style="font-size: 30px; margin-top: 4px">Flèche:</label>
+					<label style="font-size: 30px;" id="Pickup"> 1/</label>
+					<label style="font-size: 30px;"> 27</label>
+			    </div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

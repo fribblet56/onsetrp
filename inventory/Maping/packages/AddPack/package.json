@@ -1,0 +1,23 @@
+{
+ "author": "Smk-High",
+ "version": "1.0",
+ "client_scripts": [
+  "object.lua"
+ ],
+ "files": [
+  "arenemma.pak",
+  "avion1.pak",
+  "borne_arcade.pak",
+  "camera_ip.pak",
+  "discoball.pak",
+  "escalier.pak",
+  "helico_ferme_MG.pak",
+  "herbe.pak",
+  "lavabo.pak",
+  "sacfrappe.pak",
+  "table.pak",
+  "tabouret.pak",
+  "tanka.pak",
+  "casqueduchantar.pak"
+ ]
+}

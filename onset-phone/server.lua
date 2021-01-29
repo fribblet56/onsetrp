@@ -2,7 +2,7 @@ local _ = function(k,...) return ImportPackage("i18n").t(GetPackageName(),k,...)
 
 -- CONFIGS
 
-local canUsePhoneWithoutPhoneItem = false
+local canUsePhoneWithoutPhoneItem = true
 local phoneItemName = 'phone'
 local canUsePhoneWhileGathering = false
 
@@ -12,7 +12,7 @@ function LoadPhone(player)
     if (canUsePhoneWhileGathering or not PlayerData[player].onAction) and canUsePhoneWithoutPhoneItem or PlayerData[player].inventory[phoneItemName] then
 	if not GetPlayerPropertyValue(player, "sit") then
         	local x, y, z = GetPlayerLocation(player)
-        	local Ophone = CreateObject(181, x, y, z)
+        	local Ophone = CreateObject(1026, x, y, z)
         	SetObjectAttached(Ophone, ATTACH_PLAYER, player, -11.0, 4.0, 6.0, 30.0, -10.0, -10.0, "hand_r")
         	CallRemoteEvent(player, "StockPhone", Ophone)
         	SetPlayerAnimation(player, 'PHONE_TAKEOUT')
@@ -104,18 +104,31 @@ function MessageCreated(player, phone, content)
     else
         from = PlayerData[player].phone_number
     end
-    local query = mariadb_prepare(sql, "INSERT INTO messages (`id`, `from`, `to`, `content`, `created_at`) VALUES (NULL, '?', '?', '?', '?');",
-        tostring(from), phone, content, created_at)
 
-    local playersIds = GetAllPlayers()
+    if phone ~= "3333" then
+        local query = mariadb_prepare(sql, "INSERT INTO messages (`id`, `from`, `to`, `content`, `created_at`) VALUES (NULL, '?', '?', '?', '?');",
+            tostring(from), phone, content, created_at)
 
-    for playerId, v in pairs(playersIds) do
-        if PlayerData[playerId] ~= nil and PlayerData[playerId].phone_number == phone then
-            CallRemoteEvent(playerId, "NewMessage", from, phone, content, created_at)
+        local playersIds = GetAllPlayers()
+
+        for playerId, v in pairs(playersIds) do
+            if PlayerData[playerId] ~= nil and PlayerData[playerId].phone_number == phone then
+                CallRemoteEvent(playerId, "NewMessage", from, phone, content, created_at)
+            end
+        end
+
+        mariadb_query(sql, query, NullCallback)
+    else
+        local x,y,z = GetPlayerLocation(player)
+        for k,v in pairs(GetAllPlayers()) do
+        	if PlayerData[k].job == "mechanic" then
+        		if PlayerData[k] ~= nil then
+                	CallRemoteEvent(k, "NewMessage", from, PlayerData[k].phone_number, content, created_at)
+                    CallRemoteEvent(k, "MessageWaypoint", x,y,z)
+            	end
+        	end
         end
     end
-
-    mariadb_query(sql, query, NullCallback)
 end
 AddRemoteEvent("MessageCreated", MessageCreated)
 

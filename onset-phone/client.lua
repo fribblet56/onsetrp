@@ -12,12 +12,26 @@ local phoneOpened = false
 local phoneHome
 local phoneContacts
 
+local Waypoint = {}
+local nbrWaypoint = 0
+
 AddEvent("OnKeyPress", function(key)
     if key == "K" and not phoneOpened and not GetPlayerBusy() then
         OpenPhone()
     elseif key == "Escape" and phoneOpened then
         ClosePhone()
     end
+end)
+
+AddEvent("OnPlayerSpawn", function ( )
+    local now = os.time(os.date("!*t"))
+    CreateTimer(function ( )
+        for k,v in pairs(Waypoint) do
+            if tonumber(v.now) < tonumber(now) - 300 then
+                DestroyWaypoint(v.WaypointId)
+            end
+        end
+    end, 300000)
 end)
 
 -- LOADING
@@ -55,6 +69,17 @@ end)
 
 AddEvent("MessageCreated", function(phone, content)
     CallRemoteEvent("MessageCreated", phone, content)
+end)
+
+AddRemoteEvent("MessageWaypoint", function ( x, y, z )
+    local WaypointIdCreate = CreateWaypoint(x, y, z, "v Dépannage v")
+
+    WaypointIdee = {
+        now = os.time(os.date("!*t")),
+        WaypointId = WaypointIdCreate
+    }
+
+    table.insert(Waypoint, WaypointIdee)
 end)
 
 -- GPS CLICK
